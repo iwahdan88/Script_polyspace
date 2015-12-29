@@ -1,0 +1,77 @@
+  Script_PS.Snippit_GUI.resources - Embedded, ContainedInManifestFile, 
+  Script_PS.Script_GUI.resources - Embedded, ContainedInManifestFile, 
+ImageRuntimeVersion: v4.0.30319
+Assembly Script_PS, Version=1.0.*, Culture=Invariant Language (Invariant Country): 
+	hash=SHA1, flags=PublicKey
+Assembly mscorlib, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089: 
+	hash=None, flags=None
+Assembly ScintillaNET, Version=2.6.0.0, Culture=neutral, PublicKeyToken=948d6c9751444115: 
+	hash=None, flags=None
+Assembly System.Data, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089: 
+	hash=None, flags=None
+Assembly System.Design, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a: 
+	hash=None, flags=None
+Assembly System, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089: 
+	hash=None, flags=None
+Assembly System.Drawing, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a: 
+	hash=None, flags=None
+Assembly System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089: 
+	hash=None, flags=None
+Assembly System.Xml, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089: 
+	hash=None, flags=None
+Assembly System.Drawing, Version=2.0.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a: 
+	hash=None, flags=None
+Class Main_package.Script: AutoLayout, AnsiClass, Class, Public, BeforeFieldInit
+    Void .ctor(): PrivateScope, Public, HideBySig, SpecialName, RTSpecialName
+  Methods:
+    Set_Script_Path(String): PrivateScope, Public, HideBySig
+    Check_Script_Config(): PrivateScope, Public, HideBySig
+    getScript_path(): PrivateScope, Public, HideBySig
+    GetXmlFilePath(): PrivateScope, Public, HideBySig
+Class Main_package.Snippit: AutoLayout, AnsiClass, Class, Public, BeforeFieldInit
+    Void .ctor(System.String, System.String, System.String, System.String, System.String, System.String, System.String, System.String, System.String, System.String, System.String): PrivateScope, Public, HideBySig, SpecialName, RTSpecialName
+    Void .ctor(): PrivateScope, Public, HideBySig, SpecialName, RTSpecialName
+  Methods:
+    Set_Original(String): PrivateScope, Public, HideBySig
+    Set_Replacment(String): PrivateScope, Public, HideBySig
+    Set_File_Name(String): PrivateScope, Public, HideBySig
+    Set_Snippet_Justification(String): PrivateScope, Public, HideBySig
+    Set_SW_Version(String): PrivateScope, Public, HideBySig
+    SetReuse(Boolean(HasFieldMarshal)): PrivateScope, Public, HideBySig
+    SetReplacement(Boolean(HasFieldMarshal)): PrivateScope, Public, HideBySig
+    Set_BugTRAQ(String): PrivateScope, Public, HideBySig
+    Set_ID(String): PrivateScope, Public, HideBySig
+    SetSnippetType(SnippitType): PrivateScope, Public, HideBySig
+    SetBugReportNum(Int32): PrivateScope, Public, HideBySig
+    GetSW_Version(): PrivateScope, Public, HideBySig
+    IsSnippetReused(): PrivateScope, Public, HideBySig
+    IsSnippetReplaced(): PrivateScope, Public, HideBySig
+    GetBugTRAQ(): PrivateScope, Public, HideBySig
+    GetID(): PrivateScope, Public, HideBySig
+    GetSnippetType(): PrivateScope, Public, HideBySig
+    GetBugReportNum(): PrivateScope, Public, HideBySig
+    Get_Original(): PrivateScope, Public, HideBySig
+    Get_Replacment(): PrivateScope, Public, HideBySig
+    Get_File_Name(): PrivateScope, Public, HideBySig
+    Get_Snippet_Justification(): PrivateScope, Public, HideBySig
+    ByPass(Boolean(HasFieldMarshal)): PrivateScope, Public, HideBySig
+    Is_ByPassed(): PrivateScope, Public, HideBySig
+Class Main_package.Replacer: AutoLayout, AnsiClass, Class, Public, BeforeFieldInit
+    Void .ctor(): PrivateScope, Public, HideBySig, SpecialName, RTSpecialName
+  Methods:
+    Load_XmlFile(String): PrivateScope, Public, HideBySig
+    Create_Snippit(String, String, String): PrivateScope, Public, HideBySig
+    Delete_Snippit(UInt16): PrivateScope, Public, HideBySig
+    Get_snippit(UInt16): PrivateScope, Public, HideBySig
+    Edit_Snippit(String[], UInt16): PrivateScope, Public, HideBySig
+    Get_Snpt_Count(): PrivateScope, Public, HideBySig
+    Contains(String, String[]): PrivateScope, Public, HideBySig
+    Save_file(): PrivateScope, Public, HideBySig
+    Delete_file(): PrivateScope, Public, HideBySig
+    Reload(): PrivateScope, Public, HideBySig
+Class Script_PS.Snippet_Config: AutoLayout, AnsiClass, Class, Public, BeforeFieldInit
+  :System.Windows.Forms.Form
+    Void .ctor(System.String): PrivateScope, Public, HideBySig, SpecialName, RTSpecialName
+Class Script_PS.Script_GUI: AutoLayout, AnsiClass, Class, Public, BeforeFieldInit
+  :System.Windows.Forms.Form
+    Void .ctor(): PrivateScope, Public, HideBySig, SpecialName, RTSpecialName

@@ -100,7 +100,6 @@
     <None Include="ReadMe.txt" />
   </ItemGroup>
   <ItemGroup>
-    <ClCompile Include="..\..\..\..\..\..\islam\Documents\Visual Studio 2013\Projects\Script_PS\Script_PS\Keyword_Replace.cpp" />
     <ClCompile Include="..\..\..\..\..\..\islam\Documents\Visual Studio 2013\Projects\Script_PS\Script_PS\Script.cpp" />
     <ClCompile Include="..\..\..\..\..\..\islam\Documents\Visual Studio 2013\Projects\Script_PS\Script_PS\Snippit.cpp" />
     <ClCompile Include="Code_Replacer.cpp" />
@@ -114,10 +113,6 @@
   <ItemGroup>
     <ClInclude Include="..\..\..\..\..\..\islam\Documents\Visual Studio 2013\Projects\Script_PS\Script_PS\Code_Replacer.h" />
     <ClInclude Include="..\..\..\..\..\..\islam\Documents\Visual Studio 2013\Projects\Script_PS\Script_PS\Snippit.h" />
-    <ClInclude Include="Keyword_GUI.h">
-      <FileType>CppForm</FileType>
-    </ClInclude>
-    <ClInclude Include="..\..\..\..\..\..\islam\Documents\Visual Studio 2013\Projects\Script_PS\Script_PS\Keyword_Replacer.h" />
     <ClInclude Include="Snippit_GUI.h">
       <FileType>CppForm</FileType>
     </ClInclude>
@@ -133,9 +128,6 @@
     <ResourceCompile Include="app.rc" />
   </ItemGroup>
   <ItemGroup>
-    <EmbeddedResource Include="Keyword_GUI.resx">
-      <DependentUpon>Keyword_GUI.h</DependentUpon>
-    </EmbeddedResource>
     <EmbeddedResource Include="Snippit_GUI.resx">
       <DependentUpon>Snippit_GUI.h</DependentUpon>
     </EmbeddedResource>

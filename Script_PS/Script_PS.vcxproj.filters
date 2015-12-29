@@ -33,9 +33,6 @@
     <ClCompile Include="Code_Replacer.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="..\..\..\..\..\..\islam\Documents\Visual Studio 2013\Projects\Script_PS\Script_PS\Keyword_Replace.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
     <ClCompile Include="..\..\..\..\..\..\islam\Documents\Visual Studio 2013\Projects\Script_PS\Script_PS\Script.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
@@ -56,9 +53,6 @@
     <ClInclude Include="Script.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="Keyword_GUI.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
     <ClInclude Include="Snippit_GUI.h">
       <Filter>Header Files</Filter>
     </ClInclude>
@@ -66,9 +60,6 @@
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="..\..\..\..\..\..\islam\Documents\Visual Studio 2013\Projects\Script_PS\Script_PS\Snippit.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="..\..\..\..\..\..\islam\Documents\Visual Studio 2013\Projects\Script_PS\Script_PS\Keyword_Replacer.h">
       <Filter>Header Files</Filter>
     </ClInclude>
   </ItemGroup>

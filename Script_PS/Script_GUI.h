@@ -2,7 +2,6 @@
 #include <string>
 #include "Script.h"
 #include "Snippit_GUI.h"
-#include "Keyword_GUI.h"
 namespace Script_PS {
 
 	using namespace System;
@@ -69,7 +68,6 @@ namespace Script_PS {
 	private: System::Windows::Forms::OpenFileDialog^  openFileDialog1;
 	private: Main_package::Script^ myScript;
 	private: Script_PS::Snippet_Config^ Snippet_Form;
-	private: Script_PS::Keyword_Replace^ Keyword_Form;
 	private: System::Windows::Forms::ErrorProvider^  errorProvider1;
 	private: System::Windows::Forms::Button^  Help_btn;
 	private: bool Script_Path_Changed;
@@ -352,32 +350,7 @@ private: System::Void Script_GUI_Load(System::Object^  sender, System::EventArgs
 		 }
 private: System::Void button7_Click(System::Object^  sender, System::EventArgs^  e) 
 		 {
-			 static unsigned short click_count = 0;
-			 if(click_count == 0 || this->Script_Path_Changed_2)
-			 {
-				array<System::String^>^ File_path = myScript->Get_Secondary_Paths();
-				if(System::IO::File::Exists(File_path[0]) && System::IO::File::Exists(File_path[1]) && System::IO::File::Exists(File_path[2]))
-				{
-					Keyword_Form = gcnew Script_PS::Keyword_Replace(File_path[2]);
-				}
-				else
-				{
-					if(System::Windows::Forms::MessageBox::Show("Cannot Find \"red_errors.pm\", \"File_names.pm\" or \"Keywords.pm\"\n Do you Want to generate these Files", "Cannot Find File", System::Windows::Forms::MessageBoxButtons::OKCancel, System::Windows::Forms::MessageBoxIcon::Error) == System::Windows::Forms::DialogResult::OK)
-					{
-						System::IO::StreamWriter^ sw1 = System::IO::File::CreateText( File_path[0] );
-						System::IO::StreamWriter^ sw2 = System::IO::File::CreateText( File_path[1] );
-						System::IO::StreamWriter^ sw3 = System::IO::File::CreateText( File_path[2] );
-						sw1->Close();
-						sw2->Close();
-						sw3->Close();	
-					}
-					return;
-				}
-			 }
-			 try{Keyword_Form->ShowDialog();}catch(ObjectDisposedException^ e){return;}
-			 Keyword_Form->TopMost = true;
-			 click_count++;
-			 this->Script_Path_Changed_2 = false;
+
 		 }
 private: System::Void button3_Click(System::Object^  sender, System::EventArgs^  e) {
 			 this->openFileDialog1->ShowDialog();
@@ -409,26 +382,38 @@ private: System::Void openFileDialog1_FileOk(System::Object^  sender, System::Co
 private: System::Void button5_Click(System::Object^  sender, System::EventArgs^  e) 
 		 {
 			 static unsigned short click_count = 0;
+			 System::String^ xmlPath = myScript->GetXmlFilePath();
 			 if(click_count == 0 || this->Script_Path_Changed)
 			 {
-				array<System::String^>^ File_path = myScript->Get_Secondary_Paths();
-				if(System::IO::File::Exists(File_path[0]) && System::IO::File::Exists(File_path[1]) && System::IO::File::Exists(File_path[2]))
+				 if (System::IO::File::Exists(xmlPath))
 				{
-					Snippet_Form = gcnew Script_PS::Snippet_Config(File_path[0], File_path[1]);
+					 try
+					 {
+						 Snippet_Form = gcnew Script_PS::Snippet_Config(xmlPath);
+					 }
+					 catch (Exception^ e)
+					 {
+						 System::Windows::Forms::MessageBox::Show("Error Loading XML", "XML Error", System::Windows::Forms::MessageBoxButtons::OK, System::Windows::Forms::MessageBoxIcon::Error);
+					 }
 				}
 				else
 				{
-					if(System::Windows::Forms::MessageBox::Show("Cannot Find \"red_errors.pm\", \"File_names.pm\" or \"Keywords.pm\"\n Do you Want to generate these Files", "Cannot Find File", System::Windows::Forms::MessageBoxButtons::OKCancel, System::Windows::Forms::MessageBoxIcon::Error) == System::Windows::Forms::DialogResult::OK)
+					if (System::Windows::Forms::MessageBox::Show("Cannot Find XML file, Create New One?", "Cannot Find File", System::Windows::Forms::MessageBoxButtons::YesNo, System::Windows::Forms::MessageBoxIcon::Warning) == System::Windows::Forms::DialogResult::Yes)
 					{
-						System::IO::StreamWriter^ sw1 = System::IO::File::CreateText( File_path[0] );
-						System::IO::StreamWriter^ sw2 = System::IO::File::CreateText( File_path[1] );
-						System::IO::StreamWriter^ sw3 = System::IO::File::CreateText( File_path[2] );
-						sw1->Close();
-						sw2->Close();
-						sw3->Close();
-						
+						try
+						{
+							Snippet_Form = gcnew Script_PS::Snippet_Config(xmlPath);
+						}
+						catch (Exception^ e)
+						{
+							System::Windows::Forms::MessageBox::Show("Error Loading XML", "XML Error", System::Windows::Forms::MessageBoxButtons::OK, System::Windows::Forms::MessageBoxIcon::Error);
+							return;
+						}
 					}
-					return;
+					else
+					{
+						return;
+					}
 				}
 			 }
 			 try{Snippet_Form->ShowDialog();}catch(ObjectDisposedException^ e){return;}
@@ -444,19 +429,10 @@ private: System::Void Script_GUI_Closing( Object^ sender, System::ComponentModel
 				System::Windows::Forms::MessageBox::Show("The Script Is not Configured Yet, Please Configure Script Before Closing", "Script Error", System::Windows::Forms::MessageBoxButtons::OK, System::Windows::Forms::MessageBoxIcon::Exclamation);
 			}
 			delete Snippet_Form;
-			delete Keyword_Form;
 		}
 private: System::Void button1_Click(System::Object^  sender, System::EventArgs^  e) 
 		 {
-			 bool ret_value = myScript->Update_Path_in_script();
-			 if(ret_value)
-			 {
-				 System::Windows::Forms::MessageBox::Show("Script Configuration Done Successfully", "Pop-Up", System::Windows::Forms::MessageBoxButtons::OK, System::Windows::Forms::MessageBoxIcon::None);
-			 }
-			 else
-			 {
-				 System::Windows::Forms::MessageBox::Show("Script Already Configured", "Pop-Up", System::Windows::Forms::MessageBoxButtons::OK, System::Windows::Forms::MessageBoxIcon::Exclamation);
-			 }
+
 		 }
 private: System::Void button8_Click(System::Object^  sender, System::EventArgs^  e) 
 		 {

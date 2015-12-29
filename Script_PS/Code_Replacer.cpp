@@ -4,94 +4,69 @@
 using namespace Main_package;
 using namespace System::Text::RegularExpressions;
 using namespace System::IO;
+using namespace System::Xml;
 
-Replacer::Replacer(System::String^ FileNamesPath)
+Replacer::Replacer(void)
 	{
 		Snippit_Count = 0;
 		File_Path = "";
-		Snippits = gcnew array<Main_package::Snippit^>(MAX_NB_SNPT);
 		File_Names = gcnew array<System::String^>(Max_NB_Files);
-		Er = Valid;
-		Error_Line = -1;
-		Replacer::File_Names_Path = FileNamesPath;
-		for(int i=0;i<MAX_NB_SNPT;i++)
-		{
-			Snippits[i] = gcnew Main_package::Snippit();
-		}
+		Snippits = gcnew System::Collections::Generic::List < Main_package::Snippit^ >();
+		SnippetDataSet = gcnew System::Data::DataSet();
+		System::Data::DataTable^ Table = gcnew System::Data::DataTable("SnippetList");
+		SnippetDataSet->Tables->Add(Table);
+		SnippetDataSet->Tables[0]->Columns->Add(gcnew System::Data::DataColumn("Original"));
+		SnippetDataSet->Tables[0]->Columns->Add(gcnew System::Data::DataColumn("Replacment"));
+		SnippetDataSet->Tables[0]->Columns->Add(gcnew System::Data::DataColumn("Type"));
+		SnippetDataSet->Tables[0]->Columns->Add(gcnew System::Data::DataColumn("File"));
+		SnippetDataSet->Tables[0]->Columns->Add(gcnew System::Data::DataColumn("SnippitID"));
+		SnippetDataSet->Tables[0]->Columns->Add(gcnew System::Data::DataColumn("BugReportNum"));
+		SnippetDataSet->Tables[0]->Columns->Add(gcnew System::Data::DataColumn("WorkAroundJustification"));
+		SnippetDataSet->Tables[0]->Columns->Add(gcnew System::Data::DataColumn("SW_Version"));
+		SnippetDataSet->Tables[0]->Columns->Add(gcnew System::Data::DataColumn("IsReused"));
+		SnippetDataSet->Tables[0]->Columns->Add(gcnew System::Data::DataColumn("IsReplaced"));
+		SnippetDataSet->Tables[0]->Columns->Add(gcnew System::Data::DataColumn("BugTRAQ"));
+
+		this->XmlFile = gcnew System::Xml::XmlDocument();
 	}
-	bool Replacer::Load_File(System::String^ File_Path)
+bool Replacer::Load_XmlFile(System::String^ File_Path)
+{
+	this->XmlFile->Load(File_Path);
+	XmlNodeList^ elemList;
+	XmlElement^ root = XmlFile->DocumentElement;
+	try
 	{
-		Replacer::File_Path = File_Path;
-		File_Array = System::IO::File::ReadAllLines(File_Path);
-		if (File_Array->Length == 0)
+		elemList = root->GetElementsByTagName("Snippit");
+		Snippit_Count = elemList->Count;
+		for (int i = 0; i < Snippit_Count; i++)
 		{
-			return true;
+			SnippetDataSet->Tables[0]->Rows->Add(gcnew array < System::String^ > {(elemList->Item(i)->ChildNodes->Item(0)->InnerText),
+				(elemList->Item(i)->ChildNodes->Item(1)->InnerText),
+				(elemList->Item(i)->ChildNodes->Item(2)->InnerText),
+				(elemList->Item(i)->ChildNodes->Item(3)->InnerText),
+				(elemList->Item(i)->ChildNodes->Item(4)->InnerText),
+				(elemList->Item(i)->ChildNodes->Item(5)->InnerText),
+				(elemList->Item(i)->ChildNodes->Item(6)->InnerText),
+				(elemList->Item(i)->ChildNodes->Item(7)->InnerText),
+				(elemList->Item(i)->ChildNodes->Item(8)->InnerText),
+				(elemList->Item(i)->ChildNodes->Item(9)->InnerText),
+				(elemList->Item(i)->ChildNodes->Item(10)->InnerText)});
+
+			Snippits->Add(gcnew Snippit(SnippetDataSet->Tables[0]->Rows[i]->ItemArray[0]->ToString(), this->SnippetDataSet->Tables[0]->Rows[i]->ItemArray[1]->ToString(),
+				SnippetDataSet->Tables[0]->Rows[i]->ItemArray[2]->ToString(), SnippetDataSet->Tables[0]->Rows[i]->ItemArray[3]->ToString(),
+				SnippetDataSet->Tables[0]->Rows[i]->ItemArray[4]->ToString(), SnippetDataSet->Tables[0]->Rows[i]->ItemArray[5]->ToString(),
+				SnippetDataSet->Tables[0]->Rows[i]->ItemArray[6]->ToString(), SnippetDataSet->Tables[0]->Rows[i]->ItemArray[7]->ToString(),
+				SnippetDataSet->Tables[0]->Rows[i]->ItemArray[8]->ToString(), SnippetDataSet->Tables[0]->Rows[i]->ItemArray[9]->ToString(),
+				SnippetDataSet->Tables[0]->Rows[i]->ItemArray[10]->ToString()));
+
 		}
-		bool Is_File_Valid = Replacer::Validate_File();
-		if(!Is_File_Valid)
-		{
-			return false;
-		}
-		Snippit_Count = 1;
-		Regex^ Delimiter = gcnew Regex("<>");
-		array<System::String^>^ split;
-		char Delimiter_flag  = 0;
-		System::String^ nline = "\n";
-		bool delim;
-		array<System::String^>^ delimstr = gcnew array<System::String^>{"<>"};
-		Match^ FileName;
-		System::String^ Filename;
-		Regex^ pat = gcnew Regex ("\\=\\>\\s*(.[^\\.]*\\.[cC])");
-		for(int i = 0;i<File_Array->Length;i++)
-		{
-			if(Regex::IsMatch(File_Array[i], "ENDERROR"))
-			{
-				Snippit_Count++;
-				Delimiter_flag = 0;
-				nline = "\n";
-				FileName = pat->Match(File_Array[i]);
-				Filename = FileName->Groups[1]->Value;
-				Snippits[Snippit_Count - 2]->Set_File_Name(Filename);
-			}
-			else
-			{
-				delim = Regex::IsMatch(File_Array[i], "<>");
-				if(delim)
-				{
-					split = File_Array[i]->Split(delimstr,2,System::StringSplitOptions::None);
-					if(((i+1) < File_Array->Length) && (Regex::IsMatch(File_Array[i+1], "ENDERROR")))
-					{
-						nline = "";
-					}
-					Snippits[Snippit_Count - 1]->Set_Original(System::String::Concat(Snippits[Snippit_Count -1]->Get_Original(), split[0]));
-					Snippits[Snippit_Count -1]->Set_Replacment(System::String::Concat(Snippits[Snippit_Count -1]->Get_Replacment(), split[1] + nline));
-					Delimiter_flag = 1;
-					delim = false;
-					nline = "\n";
-				}
-				else if(!Delimiter_flag)
-				{
-					if(!(File_Array[i]->Equals("\n")))
-					{
-						Snippits[Snippit_Count -1]->Set_Original(System::String::Concat(Snippits[Snippit_Count - 1]->Get_Original(), File_Array[i] + "\n"));
-					}
-				}
-				else
-				{
-					if(!(File_Array[i]->Equals("\n")))
-					{
-						if(((i+1) < File_Array->Length) && (Regex::IsMatch(File_Array[i+1], "ENDERROR")))
-						{
-							nline = "";
-						}
-						Snippits[Snippit_Count - 1]->Set_Replacment(System::String::Concat(Snippits[Snippit_Count - 1]->Get_Replacment(), File_Array[i] + nline));
-					}
-				}
-			}
-		}
-		Snippit_Count -= 1;
-		return true;
 	}
+	catch (System::Exception^ exeption)
+	{
+		return false;
+	}
+	return true;
+}
 	void Replacer::Create_Snippit(System::String^ snpt_original, System::String^ snpt_replacment, System::String^ FileName)
 	{
 		Snippit_Count++;
@@ -123,8 +98,6 @@ Replacer::Replacer(System::String^ FileNamesPath)
 			
 		}
 		System::IO::File::WriteAllText(Replacer::File_Path, File);
-		Load_File_Names();
-		Write_File_Names();
 	}
 	void Replacer::Delete_Snippit(unsigned short Snpt_number)
 	{
@@ -137,7 +110,36 @@ Replacer::Replacer(System::String^ FileNamesPath)
 	}
 	array<System::String^>^ Replacer::Get_snippit(unsigned short Snpt_number)
 	{
-		array<System::String^>^ Snippit = {Snippits[Snpt_number]->Get_Original(), Snippits[Snpt_number]->Get_Replacment(), Snippits[Snpt_number]->Get_File_Name()};
+		System::String^ snptype;
+		System::String^ IsReues = "NO";
+		System::String^ IsReplaced = "NO";
+		System::String^ BugNum = Snippits[Snpt_number]->GetBugReportNum().ToString();
+		if (Snippits[Snpt_number]->IsSnippetReplaced())
+		{
+			IsReplaced = "YES";
+		}
+		if (Snippits[Snpt_number]->IsSnippetReused())
+		{
+			IsReues = "YES";
+		}
+		switch (Snippits[Snpt_number]->GetSnippetType())
+		{
+			case SnippitType::PolySpace_1:
+				snptype = "Polyspace_1";
+				break;
+			case SnippitType::PolySpace_2:
+				snptype = "Polyspace_2";
+				break;
+			case SnippitType::Bug_Report:
+				snptype = "Bug_Report";
+				break;
+			default:
+				snptype = "Unknown Type";
+				break;
+		}
+		array<System::String^>^ Snippit = { Snippits[Snpt_number]->Get_Original(), Snippits[Snpt_number]->Get_Replacment(), Snippits[Snpt_number]->Get_File_Name(), snptype, 
+			Snippits[Snpt_number]->Get_Snippet_Justification(), Snippits[Snpt_number]->GetSW_Version(), IsReues, IsReplaced, Snippits[Snpt_number]->GetBugTRAQ(), Snippits[Snpt_number]->GetID(),
+			BugNum };
 		return Snippit;
 	}
 	void Replacer::Edit_Snippit(array<System::String^>^ snpt, unsigned short Snpt_number)
@@ -225,90 +227,4 @@ Replacer::Replacer(System::String^ FileNamesPath)
 			}
 		}
 		 Snippit_Count --;
-	}
-	bool Replacer::Validate_File(void)
-	{
-		unsigned char Balance = 0;
-		unsigned long tail =0;
-		Er = Valid;
-		for(int i = 0;i<File_Array->Length;i++)
-		{
-			if(Regex::IsMatch(File_Array[i], "\\<\\>"))
-			{
-				if(Balance > 0)
-				{
-					Er = Line_Error_delim;
-					Error_Line = i - tail;
-					return false;
-				}
-				Balance ++;
-				tail =0;
-			}
-			else if(Regex::IsMatch(File_Array[i], "ENDERROR\\s+\\=\\s*\\>"))
-			{
-				if(Balance < 1)
-				{
-					Er = Line_Error_End;
-					Error_Line = i + 1;
-					return false;
-				}
-				Balance --;
-				tail = 0;
-			}
-			else
-			{
-				tail++;
-			}
-		}
-		if(tail > 0)
-		{
-			Er = Unresolved_lines;
-			return false;
-		}
-		Er = Valid;
-		return true;
-	}
-	File_Error Replacer::Get_Err(void)
-	{
-		return Er;
-	}
-	unsigned long Replacer::Get_Err_Line(void)
-	{
-		return Error_Line;
-	}
-	unsigned long Replacer::Get_File_Length(void)
-	{
-		return File_Array->Length;
-	}
-	void Replacer::Write_File_Names(void)
-	{
-		System::String^ file = "FILENAMES:";
-		for(int i =0; i < File_Names->Length ; i++)
-		{
-			if(File_Names[i] == nullptr)
-			{
-				break;
-			}
-			else if(!Regex::IsMatch(File_Names[i], "\\.[cC]\\s*$"))
-			{
-				continue;
-			}
-			file = file + "\n" + File_Names[i];
-		}
-		file = file + "\nENDFILES";
-		System::IO::File::WriteAllText(Replacer::File_Names_Path, file);
-	}
-	void Replacer::Load_File_Names(void)
-	{
-		for(int i =0;i< Snippit_Count;i++)
-		{
-			if(Snippits[i]->Get_File_Name() == nullptr)
-			{
-				break;
-			}
-			else
-			{
-				File_Names[i] = Snippits[i]->Get_File_Name();
-			}
-		}
 	}

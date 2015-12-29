@@ -1,6 +1,7 @@
 #pragma once
 
 #include "Code_Replacer.h"
+#include "Snippit.h"
 namespace Script_PS {
 
 	using namespace System;
@@ -14,58 +15,26 @@ namespace Script_PS {
 	/// <summary>
 	/// Summary for Snippet_Config
 	/// </summary>
-	public ref class Snippet_Config : public System::Windows::Forms::Form
+	public ref class Snippet_Config : public System::Windows::Forms::Form 
 	{
 	public:
-		Snippet_Config(System::String^ Path, System::String^ Path_files)
+		Snippet_Config(System::String^ XmlPath)
 		{
-			Snpt_Replacer = gcnew Main_package::Replacer(Path_files);
+			System::String^ Err = "";
+			Snpt_Replacer = gcnew Main_package::Replacer();
 			InitializeComponent();
-			if(!this->Snpt_Replacer->Load_File(Path))
+			if (System::IO::File::Exists(XmlPath) && !this->Snpt_Replacer->Load_XmlFile(XmlPath))
 			{
-				System::String^ error = "";
-				if(this->Snpt_Replacer->Get_Err() == Line_Error_delim)
-				{
-					error = "there Must be an \"ENDERROR=>FileName.c\"\nKeyword after Code separated in Line " + this->Snpt_Replacer->Get_Err_Line();
-					System::Windows::Forms::MessageBox::Show("File \"red_errors.pm\" is Corrupted, " + error,"Error",
-					System::Windows::Forms::MessageBoxButtons::OK, 
-					System::Windows::Forms::MessageBoxIcon::Error);
-					delete this;
-					return;
-				}
-				else if(this->Snpt_Replacer->Get_Err() == Unresolved_lines)
-				{
-					error = "Some Lines at the end of \"red_errors.pm\" file are Wrongly Formatted";
-					System::Windows::Forms::MessageBox::Show(error,"Error",
-					System::Windows::Forms::MessageBoxButtons::OK, 
-					System::Windows::Forms::MessageBoxIcon::Error);
-					delete this;
-					return;
-				}
-				else if(this->Snpt_Replacer->Get_Err() == Line_Error_End)
-				{
-					error = "there Must be a Delimiter \"<>\"\nBefore \"ENDERROR=>FileName.c\" Keyword in Line " + this->Snpt_Replacer->Get_Err_Line();
-					System::Windows::Forms::MessageBox::Show("File \"red_errors.pm\" is Corrupted" + error,"Error",
-					System::Windows::Forms::MessageBoxButtons::OK, 
-					System::Windows::Forms::MessageBoxIcon::Error);
-					delete this;
-					return;
-				}
+				throw (gcnew System::Exception("Failed to load Xml"));
 			}
-			else if(this->Snpt_Replacer->Get_File_Length() == 0)
+			else
 			{
-				this->Path = Path;
+				this->Path = XmlPath;
 				this->Enable_Add = false;
-				this->Is_File_Name_Entered = false;
-				this->pat_num = gcnew Regex ("([0-9]+)");
-				return;
+				this->pat_num = gcnew Regex("([0-9]+)");
+				this->Fill_Tree();
+				this->Load_File_Names();
 			}
-			this->Path = Path;
-			this->Enable_Add = false;
-			this->Is_File_Name_Entered = false;
-			this->pat_num = gcnew Regex ("([0-9]+)");
-			this->Fill_Tree();
-			this->Load_File_Names();
 		}
 
 	protected:
@@ -83,6 +52,7 @@ namespace Script_PS {
 	private: System::Windows::Forms::Button^  Add_button;
 	private: System::Windows::Forms::Button^  Delete_button;
 	private: System::Windows::Forms::Button^  Edit_button;
+	private: System::String^ ErrMssg;
 	protected: 
 
 
@@ -103,7 +73,6 @@ namespace Script_PS {
 	private: array<System::Windows::Forms::TreeNode^>^ Snpts;
 	private: TreeNode^ Global;
 	private: bool Enable_Add;
-	private: bool Is_File_Name_Entered;
 	private: ScintillaNET::Scintilla^  richTextBox1;
 	private: ScintillaNET::Scintilla^  richTextBox2;
 	private: System::Windows::Forms::StatusStrip^  statusStrip1;
@@ -114,6 +83,14 @@ namespace Script_PS {
 	private: System::Windows::Forms::TextBox^  BugReportTxt;
 
 	private: System::Windows::Forms::Label^  BugReportNumLbl;
+	private: System::Windows::Forms::CheckBox^  IsReplaceCheck;
+	private: System::Windows::Forms::CheckBox^  IsReusedCheck;
+	private: System::Windows::Forms::TextBox^  VersionBox;
+	private: System::Windows::Forms::Label^  SWLabel;
+	private: System::Windows::Forms::Label^  TRQLabel;
+	private: System::Windows::Forms::TextBox^  TRAQBox;
+	private: System::Windows::Forms::RichTextBox^  JustificationBox;
+	private: System::Windows::Forms::Label^  JustLabel;
 
 
 
@@ -151,6 +128,14 @@ namespace Script_PS {
 			this->SnippiyTypeLabel = (gcnew System::Windows::Forms::Label());
 			this->BugReportTxt = (gcnew System::Windows::Forms::TextBox());
 			this->BugReportNumLbl = (gcnew System::Windows::Forms::Label());
+			this->IsReplaceCheck = (gcnew System::Windows::Forms::CheckBox());
+			this->IsReusedCheck = (gcnew System::Windows::Forms::CheckBox());
+			this->VersionBox = (gcnew System::Windows::Forms::TextBox());
+			this->SWLabel = (gcnew System::Windows::Forms::Label());
+			this->TRQLabel = (gcnew System::Windows::Forms::Label());
+			this->TRAQBox = (gcnew System::Windows::Forms::TextBox());
+			this->JustificationBox = (gcnew System::Windows::Forms::RichTextBox());
+			this->JustLabel = (gcnew System::Windows::Forms::Label());
 			(cli::safe_cast<System::ComponentModel::ISupportInitialize^>(this->richTextBox1))->BeginInit();
 			(cli::safe_cast<System::ComponentModel::ISupportInitialize^>(this->richTextBox2))->BeginInit();
 			this->statusStrip1->SuspendLayout();
@@ -262,7 +247,7 @@ namespace Script_PS {
 			this->richTextBox1->Location = System::Drawing::Point(163, 84);
 			this->richTextBox1->Margins->Margin0->Width = 20;
 			this->richTextBox1->Name = L"richTextBox1";
-			this->richTextBox1->Size = System::Drawing::Size(600, 500);
+			this->richTextBox1->Size = System::Drawing::Size(600, 403);
 			this->richTextBox1->Styles->BraceBad->FontName = L"Verdana\0\0\0\0\0\0\0\0\0\0\0\0\0";
 			this->richTextBox1->Styles->BraceLight->FontName = L"Verdana\0\0\0\0\0\0\0\0\0\0\0\0\0";
 			this->richTextBox1->Styles->CallTip->FontName = L"Segoe UI\0\0\0\0\0\0\0\0\0\0\0\0";
@@ -282,7 +267,7 @@ namespace Script_PS {
 			this->richTextBox2->Location = System::Drawing::Point(818, 84);
 			this->richTextBox2->Margins->Margin0->Width = 25;
 			this->richTextBox2->Name = L"richTextBox2";
-			this->richTextBox2->Size = System::Drawing::Size(600, 500);
+			this->richTextBox2->Size = System::Drawing::Size(600, 403);
 			this->richTextBox2->Styles->BraceBad->FontName = L"Verdana\0\0\0\0\0\0\0\0\0\0\0\0\0";
 			this->richTextBox2->Styles->BraceLight->FontName = L"Verdana\0\0\0\0\0\0\0\0\0\0\0\0\0";
 			this->richTextBox2->Styles->CallTip->FontName = L"Segoe UI\0\0\0\0\0\0\0\0\0\0\0\0";
@@ -300,7 +285,7 @@ namespace Script_PS {
 			this->statusStrip1->Items->AddRange(gcnew cli::array< System::Windows::Forms::ToolStripItem^  >(1) { this->toolStripStatusLabel1 });
 			this->statusStrip1->Location = System::Drawing::Point(0, 665);
 			this->statusStrip1->Name = L"statusStrip1";
-			this->statusStrip1->Size = System::Drawing::Size(1368, 22);
+			this->statusStrip1->Size = System::Drawing::Size(1448, 22);
 			this->statusStrip1->TabIndex = 16;
 			this->statusStrip1->Text = L"statusStrip1";
 			// 
@@ -339,7 +324,7 @@ namespace Script_PS {
 			// BugReportTxt
 			// 
 			this->BugReportTxt->Enabled = false;
-			this->BugReportTxt->Location = System::Drawing::Point(919, 14);
+			this->BugReportTxt->Location = System::Drawing::Point(418, 50);
 			this->BugReportTxt->Name = L"BugReportTxt";
 			this->BugReportTxt->Size = System::Drawing::Size(50, 20);
 			this->BugReportTxt->TabIndex = 20;
@@ -347,18 +332,96 @@ namespace Script_PS {
 			// BugReportNumLbl
 			// 
 			this->BugReportNumLbl->AutoSize = true;
-			this->BugReportNumLbl->Location = System::Drawing::Point(833, 17);
+			this->BugReportNumLbl->Location = System::Drawing::Point(332, 53);
 			this->BugReportNumLbl->Name = L"BugReportNumLbl";
 			this->BugReportNumLbl->Size = System::Drawing::Size(80, 13);
 			this->BugReportNumLbl->TabIndex = 21;
 			this->BugReportNumLbl->Text = L"BugReportNum";
 			// 
+			// IsReplaceCheck
+			// 
+			this->IsReplaceCheck->AutoSize = true;
+			this->IsReplaceCheck->Location = System::Drawing::Point(1222, 21);
+			this->IsReplaceCheck->Name = L"IsReplaceCheck";
+			this->IsReplaceCheck->Size = System::Drawing::Size(100, 17);
+			this->IsReplaceCheck->TabIndex = 22;
+			this->IsReplaceCheck->Text = L"Snippet Verified";
+			this->IsReplaceCheck->UseVisualStyleBackColor = true;
+			// 
+			// IsReusedCheck
+			// 
+			this->IsReusedCheck->AutoSize = true;
+			this->IsReusedCheck->Location = System::Drawing::Point(1222, 44);
+			this->IsReusedCheck->Name = L"IsReusedCheck";
+			this->IsReusedCheck->Size = System::Drawing::Size(194, 17);
+			this->IsReusedCheck->TabIndex = 23;
+			this->IsReusedCheck->Text = L"Snippet Reused From previous Run";
+			this->IsReusedCheck->UseVisualStyleBackColor = true;
+			// 
+			// VersionBox
+			// 
+			this->VersionBox->Location = System::Drawing::Point(922, 14);
+			this->VersionBox->Name = L"VersionBox";
+			this->VersionBox->Size = System::Drawing::Size(51, 20);
+			this->VersionBox->TabIndex = 24;
+			// 
+			// SWLabel
+			// 
+			this->SWLabel->AutoSize = true;
+			this->SWLabel->Location = System::Drawing::Point(888, 17);
+			this->SWLabel->Name = L"SWLabel";
+			this->SWLabel->Size = System::Drawing::Size(28, 13);
+			this->SWLabel->TabIndex = 25;
+			this->SWLabel->Text = L"SW:";
+			this->SWLabel->Click += gcnew System::EventHandler(this, &Snippet_Config::SWLabel_Click);
+			// 
+			// TRQLabel
+			// 
+			this->TRQLabel->AutoSize = true;
+			this->TRQLabel->Location = System::Drawing::Point(506, 53);
+			this->TRQLabel->Name = L"TRQLabel";
+			this->TRQLabel->Size = System::Drawing::Size(40, 13);
+			this->TRQLabel->TabIndex = 27;
+			this->TRQLabel->Text = L"TRAQ:";
+			// 
+			// TRAQBox
+			// 
+			this->TRAQBox->Enabled = false;
+			this->TRAQBox->Location = System::Drawing::Point(552, 50);
+			this->TRAQBox->Name = L"TRAQBox";
+			this->TRAQBox->Size = System::Drawing::Size(190, 20);
+			this->TRAQBox->TabIndex = 28;
+			// 
+			// JustificationBox
+			// 
+			this->JustificationBox->Location = System::Drawing::Point(537, 506);
+			this->JustificationBox->Name = L"JustificationBox";
+			this->JustificationBox->Size = System::Drawing::Size(476, 56);
+			this->JustificationBox->TabIndex = 29;
+			this->JustificationBox->Text = L"";
+			// 
+			// JustLabel
+			// 
+			this->JustLabel->AutoSize = true;
+			this->JustLabel->Location = System::Drawing::Point(437, 528);
+			this->JustLabel->Name = L"JustLabel";
+			this->JustLabel->Size = System::Drawing::Size(62, 13);
+			this->JustLabel->TabIndex = 30;
+			this->JustLabel->Text = L"Justification";
+			// 
 			// Snippet_Config
 			// 
-			this->AutoScaleDimensions = System::Drawing::SizeF(6, 13);
-			this->AutoScaleMode = System::Windows::Forms::AutoScaleMode::Font;
-			this->AutoSize = true;
-			this->ClientSize = System::Drawing::Size(1368, 687);
+			this->AutoScaleMode = System::Windows::Forms::AutoScaleMode::Inherit;
+			this->AutoSizeMode = System::Windows::Forms::AutoSizeMode::GrowAndShrink;
+			this->ClientSize = System::Drawing::Size(1448, 687);
+			this->Controls->Add(this->JustLabel);
+			this->Controls->Add(this->JustificationBox);
+			this->Controls->Add(this->TRAQBox);
+			this->Controls->Add(this->TRQLabel);
+			this->Controls->Add(this->SWLabel);
+			this->Controls->Add(this->VersionBox);
+			this->Controls->Add(this->IsReusedCheck);
+			this->Controls->Add(this->IsReplaceCheck);
 			this->Controls->Add(this->BugReportNumLbl);
 			this->Controls->Add(this->BugReportTxt);
 			this->Controls->Add(this->SnippiyTypeLabel);
@@ -378,7 +441,6 @@ namespace Script_PS {
 			this->Controls->Add(this->Add_button);
 			this->Controls->Add(this->treeView1);
 			this->FormBorderStyle = System::Windows::Forms::FormBorderStyle::Fixed3D;
-			this->MaximizeBox = false;
 			this->Name = L"Snippet_Config";
 			this->StartPosition = System::Windows::Forms::FormStartPosition::CenterParent;
 			this->Text = L"Snippet_Config";
@@ -395,13 +457,13 @@ namespace Script_PS {
 		{
 			for(int i = 0; i< this->Snpt_Replacer->Get_Snpt_Count(); i++)
 			{
-				if(this->Snpt_Replacer->Get_snippit(i)[2]->Equals("") || this->comboBox1->Items->Contains(this->Snpt_Replacer->Get_snippit(i)[2]))
+				if(this->Snpt_Replacer->Get_snippit(i)[2]->Equals(""))
 				{
 					continue;
 				}
 				else
 				{
-					this->comboBox1->Items->Add(this->Snpt_Replacer->Get_snippit(i)[2]);
+					Add_File_ToCombo(this->Snpt_Replacer->Get_snippit(i)[2]);
 				}
 			}
 		}
@@ -427,9 +489,9 @@ namespace Script_PS {
 			this->Snpts = gcnew array<System::Windows::Forms::TreeNode^>(index);
 			for(int i=0;i<index;i++)
 			{
-				Snpts[i] = gcnew TreeNode("Snippit " + i);
+				Snpts[i] = gcnew TreeNode("Snippit # " + i);
 			}
-			Global = gcnew TreeNode("Code", Snpts);
+			Global = gcnew TreeNode("All Snippets", Snpts);
 			this->treeView1->Nodes->Add(Global);
 		}
 		void Refresh_Tree(void)
@@ -438,9 +500,9 @@ namespace Script_PS {
 			this->Snpts = gcnew array<System::Windows::Forms::TreeNode^>(index);
 			for(int i=0;i<index;i++)
 			{
-				Snpts[i] = gcnew TreeNode("Snippit " + i);
+				Snpts[i] = gcnew TreeNode("Snippit # " + i);
 			}
-			Global = gcnew TreeNode("Code", Snpts);
+			Global = gcnew TreeNode("All Snippets", Snpts);
 			this->treeView1->BeginUpdate();
 			this->treeView1->Nodes->Clear();
 			this->treeView1->Nodes->Add(Global);
@@ -471,6 +533,37 @@ private: System::Void treeView1_AfterSelect(System::Object^  sender, System::Win
 				 array<System::String^>^ Snpt =  this->Snpt_Replacer->Get_snippit(Num);
 				 this->richTextBox1->Text = Snpt[0];
 				 this->richTextBox2->Text = Snpt[1];
+				 this->SnippitTypeCombo->Text = Snpt[3];
+				 if (Snpt[3]->Equals("Bug_Report"))
+				 {
+					 this->BugReportTxt->Enabled = true;
+					 this->TRAQBox->Enabled = true;
+					 this->BugReportTxt->Text = Snpt[10];
+					 this->TRAQBox->Text = Snpt[8];
+				 }
+				 else
+				 {
+					 this->BugReportTxt->Enabled = false;
+					 this->TRAQBox->Enabled = false;
+				 }
+				 if (Snpt[6]->Equals("YES"))
+				 {
+					 this->IsReusedCheck->Checked = true;
+				 }
+				 else
+				 {
+					 this->IsReusedCheck->Checked = false;
+				 }
+				 if (Snpt[7]->Equals("YES"))
+				 {
+					 this->IsReplaceCheck->Checked = true;
+				 }
+				 else
+				 {
+					 this->IsReplaceCheck->Checked = false;
+				 }
+				 this->JustificationBox->Text = Snpt[4];
+				 this->VersionBox->Text = Snpt[5];
 				 this->comboBox1->Text = Snpt[2];
 			 }
 			 else
@@ -485,51 +578,21 @@ private: System::Void treeView1_AfterSelect(System::Object^  sender, System::Win
 		 }
 private: System::Void Refresh_Click(System::Object^  sender, System::EventArgs^  e) 
 		 {
+			System::String^ Err = "";
 			this->Snpt_Replacer->Reload();
-			if(!this->Snpt_Replacer->Load_File(Path))
+			if (!this->Snpt_Replacer->Load_XmlFile(Path))
 			{
-				System::String^ error = "";
-				if(this->Snpt_Replacer->Get_Err() == Line_Error_delim)
-				{
-					error = "there Must be an \"ENDERROR=>FileName.c\"\nKeyword after Code separated in Line " + this->Snpt_Replacer->Get_Err_Line();
-					System::Windows::Forms::MessageBox::Show("File \"red_errors.pm\" is Corrupted, " + error,"Error",
-					System::Windows::Forms::MessageBoxButtons::OK, 
-					System::Windows::Forms::MessageBoxIcon::Error);
-					return;
-				}
-				else if(this->Snpt_Replacer->Get_Err() == Unresolved_lines)
-				{
-					error = "Some Lines at the end of \"red_errors.pm\" file are Wrongly Formatted";
-					System::Windows::Forms::MessageBox::Show(error,"Error",
-					System::Windows::Forms::MessageBoxButtons::OK, 
-					System::Windows::Forms::MessageBoxIcon::Error);
-					return;
-				}
-				else if(this->Snpt_Replacer->Get_Err() == Line_Error_End)
-				{
-					error = "there Must be a Delimiter \"<>\"\nBefore \"ENDERROR=>FileName.c\" Keyword in Line " + this->Snpt_Replacer->Get_Err_Line();
-					System::Windows::Forms::MessageBox::Show("File \"red_errors.pm\" is Corrupted" + error,"Error",
-					System::Windows::Forms::MessageBoxButtons::OK, 
-					System::Windows::Forms::MessageBoxIcon::Error);
-					return;
-				}
+				System::Windows::Forms::MessageBox::Show("Error Reading XML", "Error", System::Windows::Forms::MessageBoxButtons::OK, System::Windows::Forms::MessageBoxIcon::Error);
 			}
-			else if(this->Snpt_Replacer->Get_File_Length() == 0)
+			else
 			{
-				this-> Enable_Add = false;
+				this->Enable_Add = false;
 				this->Add_button->BackColor = System::Drawing::Color::Gainsboro;
 				this->toolStripStatusLabel1->Text = "Ready";
 				this->richTextBox1->Text = "";
 				this->richTextBox2->Text = "";
 				this->Refresh_Tree();
-				return;
 			}
-			this-> Enable_Add = false;
-			this->Add_button->BackColor = System::Drawing::Color::Gainsboro;
-			this->toolStripStatusLabel1->Text = "Ready";
-			this->richTextBox1->Text = "";
-			this->richTextBox2->Text = "";
-			this->Refresh_Tree();
 		 }
 private: System::Void New_snpt_Click(System::Object^  sender, System::EventArgs^  e) 
 		 {
@@ -633,5 +696,7 @@ private: System::Void comboBox1_SelectedIndexChanged(System::Object^  sender, Sy
 		 {
 
 		 }
+private: System::Void SWLabel_Click(System::Object^  sender, System::EventArgs^  e) {
+}
 };
 }
