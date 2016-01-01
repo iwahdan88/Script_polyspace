@@ -77,6 +77,9 @@ bool Replacer::Load_XmlFile(System::String^ File_Path)
 	}
 	void Replacer::Refresh_File()
 	{
+		/*Clear DataSet*/
+		SnippetDataSet->Clear();
+
 		System::String^ File = "";
 		for(int i=0;i < Snippit_Count;i++)
 		{
@@ -84,17 +87,8 @@ bool Replacer::Load_XmlFile(System::String^ File_Path)
 			{
 				break;
 			}
-			File = System::String::Concat(File,Snippits[i]->Get_Original() + "<>");
-			//File = File + "\n";
-			File = System::String::Concat(File,Snippits[i]->Get_Replacment());
-			if(((i+1) < MAX_NB_SNPT) && (Snippits[i+1]->Get_Original() == nullptr))
-			{
-				File = File + "\nENDERROR => " + Snippits[i]->Get_File_Name();
-			}
-			else
-			{
-				File = File + "\nENDERROR => " + Snippits[i]->Get_File_Name() + "\n";
-			}
+
+			SnippetDataSet->Tables[0]->Rows->Add();
 			
 		}
 		System::IO::File::WriteAllText(Replacer::File_Path, File);
