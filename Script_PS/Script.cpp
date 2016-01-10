@@ -33,7 +33,7 @@ Script::Script(void)
 	{
 		System::String^ str_path = Script::Script_Path;
 		Regex^ pattern = gcnew Regex(".[^\\\\]*\\.pl");
-		Script::Snippit_Xml_Path = pattern->Replace(str_path, "\\TemplateXML.xml");
+		Script::Snippit_Xml_Path = pattern->Replace(str_path, "\\SnptData.xml");
 	}
 	bool Script::Check_Script_Config(void)
 	{

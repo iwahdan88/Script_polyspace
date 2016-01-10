@@ -45,18 +45,18 @@ namespace Script_PS {
 	private: System::Windows::Forms::GroupBox^  groupBox2;
 
 
-	private: System::Windows::Forms::Button^  button1;
 
 
 
 
-	private: System::Windows::Forms::Button^  button7;
+
+
 
 	private: System::Windows::Forms::Button^  button5;
 	private: System::Windows::Forms::Label^  label2;
 
-	private: System::Windows::Forms::Label^  label4;
-	private: System::Windows::Forms::Panel^  panel3;
+
+
 
 	private: System::Windows::Forms::Panel^  panel1;
 	private: System::Windows::Forms::Button^  About_btn;
@@ -72,6 +72,8 @@ namespace Script_PS {
 	private: System::Windows::Forms::Button^  Help_btn;
 	private: bool Script_Path_Changed;
 	private: bool Script_Path_Changed_2;
+	private: System::Windows::Forms::Label^  VerLabel;
+	private: System::Windows::Forms::TextBox^  VerText;
 
 
 
@@ -102,22 +104,19 @@ namespace Script_PS {
 			this->label1 = (gcnew System::Windows::Forms::Label());
 			this->button3 = (gcnew System::Windows::Forms::Button());
 			this->groupBox2 = (gcnew System::Windows::Forms::GroupBox());
-			this->panel3 = (gcnew System::Windows::Forms::Panel());
-			this->label4 = (gcnew System::Windows::Forms::Label());
-			this->button7 = (gcnew System::Windows::Forms::Button());
 			this->panel1 = (gcnew System::Windows::Forms::Panel());
 			this->label2 = (gcnew System::Windows::Forms::Label());
 			this->button5 = (gcnew System::Windows::Forms::Button());
-			this->button1 = (gcnew System::Windows::Forms::Button());
 			this->About_btn = (gcnew System::Windows::Forms::Button());
 			this->pictureBox1 = (gcnew System::Windows::Forms::PictureBox());
 			this->label5 = (gcnew System::Windows::Forms::Label());
 			this->openFileDialog1 = (gcnew System::Windows::Forms::OpenFileDialog());
 			this->errorProvider1 = (gcnew System::Windows::Forms::ErrorProvider(this->components));
 			this->Help_btn = (gcnew System::Windows::Forms::Button());
+			this->VerText = (gcnew System::Windows::Forms::TextBox());
+			this->VerLabel = (gcnew System::Windows::Forms::Label());
 			this->groupBox1->SuspendLayout();
 			this->groupBox2->SuspendLayout();
-			this->panel3->SuspendLayout();
 			this->panel1->SuspendLayout();
 			(cli::safe_cast<System::ComponentModel::ISupportInitialize^>(this->pictureBox1))->BeginInit();
 			(cli::safe_cast<System::ComponentModel::ISupportInitialize^>(this->errorProvider1))->BeginInit();
@@ -165,52 +164,20 @@ namespace Script_PS {
 			// 
 			// groupBox2
 			// 
-			this->groupBox2->Controls->Add(this->panel3);
 			this->groupBox2->Controls->Add(this->panel1);
-			this->groupBox2->Location = System::Drawing::Point(20, 189);
+			this->groupBox2->Location = System::Drawing::Point(20, 266);
 			this->groupBox2->Name = L"groupBox2";
 			this->groupBox2->Size = System::Drawing::Size(538, 99);
 			this->groupBox2->TabIndex = 1;
 			this->groupBox2->TabStop = false;
 			this->groupBox2->Text = L"Configuration";
 			// 
-			// panel3
-			// 
-			this->panel3->BorderStyle = System::Windows::Forms::BorderStyle::Fixed3D;
-			this->panel3->Controls->Add(this->label4);
-			this->panel3->Controls->Add(this->button7);
-			this->panel3->Location = System::Drawing::Point(293, 21);
-			this->panel3->Name = L"panel3";
-			this->panel3->Size = System::Drawing::Size(230, 65);
-			this->panel3->TabIndex = 8;
-			// 
-			// label4
-			// 
-			this->label4->AutoSize = true;
-			this->label4->Location = System::Drawing::Point(4, 44);
-			this->label4->Name = L"label4";
-			this->label4->Size = System::Drawing::Size(224, 13);
-			this->label4->TabIndex = 5;
-			this->label4->Text = L"Replace Certain Keywords or lines in the code";
-			this->label4->Click += gcnew System::EventHandler(this, &Script_GUI::label4_Click);
-			// 
-			// button7
-			// 
-			this->button7->Enabled = false;
-			this->button7->Location = System::Drawing::Point(32, 7);
-			this->button7->Name = L"button7";
-			this->button7->Size = System::Drawing::Size(164, 23);
-			this->button7->TabIndex = 2;
-			this->button7->Text = L"Replace Keywords in code";
-			this->button7->UseVisualStyleBackColor = true;
-			this->button7->Click += gcnew System::EventHandler(this, &Script_GUI::button7_Click);
-			// 
 			// panel1
 			// 
 			this->panel1->BorderStyle = System::Windows::Forms::BorderStyle::Fixed3D;
 			this->panel1->Controls->Add(this->label2);
 			this->panel1->Controls->Add(this->button5);
-			this->panel1->Location = System::Drawing::Point(6, 21);
+			this->panel1->Location = System::Drawing::Point(136, 19);
 			this->panel1->Name = L"panel1";
 			this->panel1->Size = System::Drawing::Size(230, 65);
 			this->panel1->TabIndex = 6;
@@ -235,17 +202,6 @@ namespace Script_PS {
 			this->button5->Text = L"Replace Snippits of Code";
 			this->button5->UseVisualStyleBackColor = true;
 			this->button5->Click += gcnew System::EventHandler(this, &Script_GUI::button5_Click);
-			// 
-			// button1
-			// 
-			this->button1->Enabled = false;
-			this->button1->Location = System::Drawing::Point(195, 319);
-			this->button1->Name = L"button1";
-			this->button1->Size = System::Drawing::Size(183, 24);
-			this->button1->TabIndex = 3;
-			this->button1->Text = L"Configure Script";
-			this->button1->UseVisualStyleBackColor = true;
-			this->button1->Click += gcnew System::EventHandler(this, &Script_GUI::button1_Click);
 			// 
 			// About_btn
 			// 
@@ -299,17 +255,34 @@ namespace Script_PS {
 			this->Help_btn->Text = L"Help";
 			this->Help_btn->UseVisualStyleBackColor = true;
 			// 
+			// VerText
+			// 
+			this->VerText->Location = System::Drawing::Point(97, 212);
+			this->VerText->Name = L"VerText";
+			this->VerText->Size = System::Drawing::Size(74, 20);
+			this->VerText->TabIndex = 10;
+			// 
+			// VerLabel
+			// 
+			this->VerLabel->AutoSize = true;
+			this->VerLabel->Location = System::Drawing::Point(28, 215);
+			this->VerLabel->Name = L"VerLabel";
+			this->VerLabel->Size = System::Drawing::Size(63, 13);
+			this->VerLabel->TabIndex = 11;
+			this->VerLabel->Text = L"SW Version";
+			// 
 			// Script_GUI
 			// 
 			this->AutoScaleDimensions = System::Drawing::SizeF(6, 13);
 			this->AutoScaleMode = System::Windows::Forms::AutoScaleMode::Font;
 			this->AutoSize = true;
 			this->ClientSize = System::Drawing::Size(570, 377);
+			this->Controls->Add(this->VerLabel);
+			this->Controls->Add(this->VerText);
 			this->Controls->Add(this->Help_btn);
 			this->Controls->Add(this->label5);
 			this->Controls->Add(this->pictureBox1);
 			this->Controls->Add(this->About_btn);
-			this->Controls->Add(this->button1);
 			this->Controls->Add(this->groupBox2);
 			this->Controls->Add(this->groupBox1);
 			this->FormBorderStyle = System::Windows::Forms::FormBorderStyle::Fixed3D;
@@ -322,8 +295,6 @@ namespace Script_PS {
 			this->groupBox1->ResumeLayout(false);
 			this->groupBox1->PerformLayout();
 			this->groupBox2->ResumeLayout(false);
-			this->panel3->ResumeLayout(false);
-			this->panel3->PerformLayout();
 			this->panel1->ResumeLayout(false);
 			this->panel1->PerformLayout();
 			(cli::safe_cast<System::ComponentModel::ISupportInitialize^>(this->pictureBox1))->EndInit();
@@ -365,35 +336,42 @@ private: System::Void openFileDialog1_FileOk(System::Object^  sender, System::Co
 			 {
 				 delete errorProvider1;
 				 this->textBox1->Text = myScript->getScript_path();
-				 this->button1->Enabled = true;
 				 this->button5->Enabled = true;
-				 this->button7->Enabled = true;
 				 this->Script_Path_Changed = true;
 				 this->Script_Path_Changed_2 = true;
 			 }
 			 else
 			 {
 				 this -> errorProvider1->SetError(this->textBox1, "Please Choose a script file (Ends with .pl)");
-				 this->button1->Enabled = false;
 				 this->button5->Enabled = false;
-				 this->button7->Enabled = false;
 			 }
 		 }
 private: System::Void button5_Click(System::Object^  sender, System::EventArgs^  e) 
 		 {
 			 static unsigned short click_count = 0;
 			 System::String^ xmlPath = myScript->GetXmlFilePath();
+			 double Version;
+			 try
+			 {
+				 Version = double::Parse(this->VerText->Text);
+			 }
+			 catch (Exception^ exp)
+			 {
+				 System::Windows::Forms::MessageBox::Show("Please Enter Valid SW Version -> EX: 1.1", "Error", System::Windows::Forms::MessageBoxButtons::OK, System::Windows::Forms::MessageBoxIcon::Error);
+				 return;
+			 }
 			 if(click_count == 0 || this->Script_Path_Changed)
 			 {
-				 if (System::IO::File::Exists(xmlPath))
+				if (System::IO::File::Exists(xmlPath))
 				{
 					 try
 					 {
-						 Snippet_Form = gcnew Script_PS::Snippet_Config(xmlPath);
+						 Snippet_Form = gcnew Script_PS::Snippet_Config(xmlPath, Version);
 					 }
 					 catch (Exception^ e)
 					 {
-						 System::Windows::Forms::MessageBox::Show("Error Loading XML", "XML Error", System::Windows::Forms::MessageBoxButtons::OK, System::Windows::Forms::MessageBoxIcon::Error);
+						System::Windows::Forms::MessageBox::Show(e->Message, "XML Error", System::Windows::Forms::MessageBoxButtons::OK, System::Windows::Forms::MessageBoxIcon::Error);
+						return;
 					 }
 				}
 				else
@@ -402,7 +380,7 @@ private: System::Void button5_Click(System::Object^  sender, System::EventArgs^ 
 					{
 						try
 						{
-							Snippet_Form = gcnew Script_PS::Snippet_Config(xmlPath);
+							Snippet_Form = gcnew Script_PS::Snippet_Config(xmlPath, Version);
 						}
 						catch (Exception^ e)
 						{
@@ -416,19 +394,15 @@ private: System::Void button5_Click(System::Object^  sender, System::EventArgs^ 
 					}
 				}
 			 }
-			 try{Snippet_Form->ShowDialog();}catch(ObjectDisposedException^ e){return;}
+			 try{ Snippet_Form->ShowDialog(); }
+			 catch (Exception^ e){ System::Windows::Forms::MessageBox::Show(e->Message); return; }
 			 Snippet_Form->TopMost = true;
 			 click_count++;
 			 this->Script_Path_Changed = false;
 		 }
 private: System::Void Script_GUI_Closing( Object^ sender, System::ComponentModel::CancelEventArgs^ e )
 		{
-			if(!(myScript->Check_Script_Config()))
-			{
-				e->Cancel = true;
-				System::Windows::Forms::MessageBox::Show("The Script Is not Configured Yet, Please Configure Script Before Closing", "Script Error", System::Windows::Forms::MessageBoxButtons::OK, System::Windows::Forms::MessageBoxIcon::Exclamation);
-			}
-			delete Snippet_Form;
+
 		}
 private: System::Void button1_Click(System::Object^  sender, System::EventArgs^  e) 
 		 {

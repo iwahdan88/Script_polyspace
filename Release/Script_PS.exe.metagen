@@ -57,21 +57,24 @@ Class Main_package.Snippit: AutoLayout, AnsiClass, Class, Public, BeforeFieldIni
     ByPass(Boolean(HasFieldMarshal)): PrivateScope, Public, HideBySig
     Is_ByPassed(): PrivateScope, Public, HideBySig
 Class Main_package.Replacer: AutoLayout, AnsiClass, Class, Public, BeforeFieldInit
-    Void .ctor(): PrivateScope, Public, HideBySig, SpecialName, RTSpecialName
+    Void .ctor(System.String): PrivateScope, Public, HideBySig, SpecialName, RTSpecialName
   Methods:
     Load_XmlFile(String): PrivateScope, Public, HideBySig
-    Create_Snippit(String, String, String): PrivateScope, Public, HideBySig
+    Load_XmlFile(String, Double): PrivateScope, Public, HideBySig
+    Create_Snippit(String, String, String, String, String, String, String, String, String, String): PrivateScope, Public, HideBySig
     Delete_Snippit(UInt16): PrivateScope, Public, HideBySig
     Get_snippit(UInt16): PrivateScope, Public, HideBySig
-    Edit_Snippit(String[], UInt16): PrivateScope, Public, HideBySig
+    Get_snippitByID(UInt16): PrivateScope, Public, HideBySig
+    Edit_Snippit(String[]): PrivateScope, Public, HideBySig
     Get_Snpt_Count(): PrivateScope, Public, HideBySig
+    GetMaxID(): PrivateScope, Public, HideBySig
+    IncrementID(): PrivateScope, Public, HideBySig
     Contains(String, String[]): PrivateScope, Public, HideBySig
     Save_file(): PrivateScope, Public, HideBySig
-    Delete_file(): PrivateScope, Public, HideBySig
     Reload(): PrivateScope, Public, HideBySig
 Class Script_PS.Snippet_Config: AutoLayout, AnsiClass, Class, Public, BeforeFieldInit
   :System.Windows.Forms.Form
-    Void .ctor(System.String): PrivateScope, Public, HideBySig, SpecialName, RTSpecialName
+    Void .ctor(System.String, Double): PrivateScope, Public, HideBySig, SpecialName, RTSpecialName
 Class Script_PS.Script_GUI: AutoLayout, AnsiClass, Class, Public, BeforeFieldInit
   :System.Windows.Forms.Form
     Void .ctor(): PrivateScope, Public, HideBySig, SpecialName, RTSpecialName

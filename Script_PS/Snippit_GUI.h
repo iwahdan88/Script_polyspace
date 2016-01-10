@@ -18,12 +18,17 @@ namespace Script_PS {
 	public ref class Snippet_Config : public System::Windows::Forms::Form 
 	{
 	public:
-		Snippet_Config(System::String^ XmlPath)
+		Snippet_Config(System::String^ XmlPath, double ver)
 		{
 			System::String^ Err = "";
-			Snpt_Replacer = gcnew Main_package::Replacer();
+			IsSaveRequired = true;
+			this->SWVersion = ver;
+			Snpt_Replacer = gcnew Main_package::Replacer(XmlPath);
 			InitializeComponent();
-			if (System::IO::File::Exists(XmlPath) && !this->Snpt_Replacer->Load_XmlFile(XmlPath))
+			SnippitTypeCombo->Items->Add("PolySpace_1");
+			SnippitTypeCombo->Items->Add("PolySpace_2");
+			SnippitTypeCombo->Items->Add("Bug_Report");
+			if (!this->Snpt_Replacer->Load_XmlFile(XmlPath))
 			{
 				throw (gcnew System::Exception("Failed to load Xml"));
 			}
@@ -65,6 +70,8 @@ namespace Script_PS {
 
 	private: System::Windows::Forms::Label^  label4;
 	private: Main_package::Replacer^ Snpt_Replacer;
+	private: bool IsSaveRequired;
+	private: double SWVersion;
 	private: Regex^ pat_num;
 	private: System::Windows::Forms::Button^  Refresh;
 
@@ -85,12 +92,15 @@ namespace Script_PS {
 	private: System::Windows::Forms::Label^  BugReportNumLbl;
 	private: System::Windows::Forms::CheckBox^  IsReplaceCheck;
 	private: System::Windows::Forms::CheckBox^  IsReusedCheck;
-	private: System::Windows::Forms::TextBox^  VersionBox;
+
 	private: System::Windows::Forms::Label^  SWLabel;
 	private: System::Windows::Forms::Label^  TRQLabel;
 	private: System::Windows::Forms::TextBox^  TRAQBox;
 	private: System::Windows::Forms::RichTextBox^  JustificationBox;
 	private: System::Windows::Forms::Label^  JustLabel;
+	private: System::Windows::Forms::Button^  SaveBtn;
+	private: System::Windows::Forms::Button^  LoadSnptBtn;
+	private: System::Windows::Forms::OpenFileDialog^  XML_FileDialog;
 
 
 
@@ -130,12 +140,14 @@ namespace Script_PS {
 			this->BugReportNumLbl = (gcnew System::Windows::Forms::Label());
 			this->IsReplaceCheck = (gcnew System::Windows::Forms::CheckBox());
 			this->IsReusedCheck = (gcnew System::Windows::Forms::CheckBox());
-			this->VersionBox = (gcnew System::Windows::Forms::TextBox());
 			this->SWLabel = (gcnew System::Windows::Forms::Label());
 			this->TRQLabel = (gcnew System::Windows::Forms::Label());
 			this->TRAQBox = (gcnew System::Windows::Forms::TextBox());
 			this->JustificationBox = (gcnew System::Windows::Forms::RichTextBox());
 			this->JustLabel = (gcnew System::Windows::Forms::Label());
+			this->SaveBtn = (gcnew System::Windows::Forms::Button());
+			this->LoadSnptBtn = (gcnew System::Windows::Forms::Button());
+			this->XML_FileDialog = (gcnew System::Windows::Forms::OpenFileDialog());
 			(cli::safe_cast<System::ComponentModel::ISupportInitialize^>(this->richTextBox1))->BeginInit();
 			(cli::safe_cast<System::ComponentModel::ISupportInitialize^>(this->richTextBox2))->BeginInit();
 			this->statusStrip1->SuspendLayout();
@@ -311,6 +323,7 @@ namespace Script_PS {
 			this->SnippitTypeCombo->Name = L"SnippitTypeCombo";
 			this->SnippitTypeCombo->Size = System::Drawing::Size(177, 21);
 			this->SnippitTypeCombo->TabIndex = 18;
+			this->SnippitTypeCombo->SelectedIndexChanged += gcnew System::EventHandler(this, &Snippet_Config::SnippitTypeCombo_SelectedIndexChanged);
 			// 
 			// SnippiyTypeLabel
 			// 
@@ -341,6 +354,7 @@ namespace Script_PS {
 			// IsReplaceCheck
 			// 
 			this->IsReplaceCheck->AutoSize = true;
+			this->IsReplaceCheck->Enabled = false;
 			this->IsReplaceCheck->Location = System::Drawing::Point(1222, 21);
 			this->IsReplaceCheck->Name = L"IsReplaceCheck";
 			this->IsReplaceCheck->Size = System::Drawing::Size(100, 17);
@@ -351,6 +365,7 @@ namespace Script_PS {
 			// IsReusedCheck
 			// 
 			this->IsReusedCheck->AutoSize = true;
+			this->IsReusedCheck->Enabled = false;
 			this->IsReusedCheck->Location = System::Drawing::Point(1222, 44);
 			this->IsReusedCheck->Name = L"IsReusedCheck";
 			this->IsReusedCheck->Size = System::Drawing::Size(194, 17);
@@ -358,21 +373,14 @@ namespace Script_PS {
 			this->IsReusedCheck->Text = L"Snippet Reused From previous Run";
 			this->IsReusedCheck->UseVisualStyleBackColor = true;
 			// 
-			// VersionBox
-			// 
-			this->VersionBox->Location = System::Drawing::Point(922, 14);
-			this->VersionBox->Name = L"VersionBox";
-			this->VersionBox->Size = System::Drawing::Size(51, 20);
-			this->VersionBox->TabIndex = 24;
-			// 
 			// SWLabel
 			// 
 			this->SWLabel->AutoSize = true;
 			this->SWLabel->Location = System::Drawing::Point(888, 17);
 			this->SWLabel->Name = L"SWLabel";
-			this->SWLabel->Size = System::Drawing::Size(28, 13);
+			this->SWLabel->Size = System::Drawing::Size(66, 13);
 			this->SWLabel->TabIndex = 25;
-			this->SWLabel->Text = L"SW:";
+			this->SWLabel->Text = L"SW Version:";
 			this->SWLabel->Click += gcnew System::EventHandler(this, &Snippet_Config::SWLabel_Click);
 			// 
 			// TRQLabel
@@ -409,17 +417,43 @@ namespace Script_PS {
 			this->JustLabel->TabIndex = 30;
 			this->JustLabel->Text = L"Justification";
 			// 
+			// SaveBtn
+			// 
+			this->SaveBtn->Location = System::Drawing::Point(12, 10);
+			this->SaveBtn->Name = L"SaveBtn";
+			this->SaveBtn->Size = System::Drawing::Size(59, 24);
+			this->SaveBtn->TabIndex = 31;
+			this->SaveBtn->Text = L"Save";
+			this->SaveBtn->UseVisualStyleBackColor = true;
+			this->SaveBtn->Click += gcnew System::EventHandler(this, &Snippet_Config::SaveBtn_Click);
+			// 
+			// LoadSnptBtn
+			// 
+			this->LoadSnptBtn->Location = System::Drawing::Point(654, 617);
+			this->LoadSnptBtn->Name = L"LoadSnptBtn";
+			this->LoadSnptBtn->Size = System::Drawing::Size(109, 25);
+			this->LoadSnptBtn->TabIndex = 32;
+			this->LoadSnptBtn->Text = L"Load Snippets";
+			this->LoadSnptBtn->UseVisualStyleBackColor = true;
+			this->LoadSnptBtn->Click += gcnew System::EventHandler(this, &Snippet_Config::LoadSnptBtn_Click);
+			// 
+			// XML_FileDialog
+			// 
+			this->XML_FileDialog->FileName = L"openFileDialog1";
+			// 
 			// Snippet_Config
 			// 
 			this->AutoScaleMode = System::Windows::Forms::AutoScaleMode::Inherit;
 			this->AutoSizeMode = System::Windows::Forms::AutoSizeMode::GrowAndShrink;
+			this->AutoValidate = System::Windows::Forms::AutoValidate::EnablePreventFocusChange;
 			this->ClientSize = System::Drawing::Size(1448, 687);
+			this->Controls->Add(this->LoadSnptBtn);
+			this->Controls->Add(this->SaveBtn);
 			this->Controls->Add(this->JustLabel);
 			this->Controls->Add(this->JustificationBox);
 			this->Controls->Add(this->TRAQBox);
 			this->Controls->Add(this->TRQLabel);
 			this->Controls->Add(this->SWLabel);
-			this->Controls->Add(this->VersionBox);
 			this->Controls->Add(this->IsReusedCheck);
 			this->Controls->Add(this->IsReplaceCheck);
 			this->Controls->Add(this->BugReportNumLbl);
@@ -444,6 +478,7 @@ namespace Script_PS {
 			this->Name = L"Snippet_Config";
 			this->StartPosition = System::Windows::Forms::FormStartPosition::CenterParent;
 			this->Text = L"Snippet_Config";
+			this->FormClosing += gcnew System::Windows::Forms::FormClosingEventHandler(this, &Snippet_Config::Snippet_Config_FormClosing);
 			this->Load += gcnew System::EventHandler(this, &Snippet_Config::Snippet_Config_Load);
 			(cli::safe_cast<System::ComponentModel::ISupportInitialize^>(this->richTextBox1))->EndInit();
 			(cli::safe_cast<System::ComponentModel::ISupportInitialize^>(this->richTextBox2))->EndInit();
@@ -489,8 +524,21 @@ namespace Script_PS {
 			this->Snpts = gcnew array<System::Windows::Forms::TreeNode^>(index);
 			for(int i=0;i<index;i++)
 			{
-				Snpts[i] = gcnew TreeNode("Snippit # " + i);
+				Snpts[i] = gcnew TreeNode("Snippit # " +(this->Snpt_Replacer->Get_snippit(i))[9]);
 			}
+			Global = gcnew TreeNode("All Snippets", Snpts);
+			this->treeView1->Nodes->Add(Global);
+		}
+		void RefillTree(void)
+		{
+			int index = this->Snpt_Replacer->Get_Snpt_Count();
+			this->Snpts = gcnew array<System::Windows::Forms::TreeNode^>(index);
+			for (int i = 0; i<index; i++)
+			{
+				Snpts[i] = gcnew TreeNode("Snippit # " + (this->Snpt_Replacer->Get_snippit(i))[9]);
+			}
+			Global->Nodes->Clear();
+			this->treeView1->Nodes->Clear();
 			Global = gcnew TreeNode("All Snippets", Snpts);
 			this->treeView1->Nodes->Add(Global);
 		}
@@ -500,7 +548,7 @@ namespace Script_PS {
 			this->Snpts = gcnew array<System::Windows::Forms::TreeNode^>(index);
 			for(int i=0;i<index;i++)
 			{
-				Snpts[i] = gcnew TreeNode("Snippit # " + i);
+				Snpts[i] = gcnew TreeNode("Snippit # " + (this->Snpt_Replacer->Get_snippit(i))[9]);
 			}
 			Global = gcnew TreeNode("All Snippets", Snpts);
 			this->treeView1->BeginUpdate();
@@ -518,7 +566,6 @@ private: System::Void Snippet_Config_Load(System::Object^  sender, System::Event
 		 }
 private: System::Void Snippet_Config_Closing( Object^ sender, System::ComponentModel::CancelEventArgs^ e )
 		{
-			
 		}
 private: System::Void label4_Click(System::Object^  sender, System::EventArgs^  e) {
 		 }
@@ -530,7 +577,7 @@ private: System::Void treeView1_AfterSelect(System::Object^  sender, System::Win
 			 if(!(Number->Equals("")))
 			 {
 				 unsigned short Num = int::Parse(Number);
-				 array<System::String^>^ Snpt =  this->Snpt_Replacer->Get_snippit(Num);
+				 array<System::String^>^ Snpt =  this->Snpt_Replacer->Get_snippitByID(Num);
 				 this->richTextBox1->Text = Snpt[0];
 				 this->richTextBox2->Text = Snpt[1];
 				 this->SnippitTypeCombo->Text = Snpt[3];
@@ -563,7 +610,7 @@ private: System::Void treeView1_AfterSelect(System::Object^  sender, System::Win
 					 this->IsReplaceCheck->Checked = false;
 				 }
 				 this->JustificationBox->Text = Snpt[4];
-				 this->VersionBox->Text = Snpt[5];
+				 this->SWLabel->Text = "SW Version: "+Snpt[5];
 				 this->comboBox1->Text = Snpt[2];
 			 }
 			 else
@@ -598,6 +645,13 @@ private: System::Void New_snpt_Click(System::Object^  sender, System::EventArgs^
 		 {
 			 this->richTextBox1->Text = "";
 			 this->richTextBox2->Text = "";
+			 this->BugReportTxt->Text = "";
+			 this->SnippitTypeCombo->Text = "";
+			 this->TRAQBox->Text = "";
+			 this->JustificationBox->Text = "";
+			 this->SWLabel->Text = "SW Version: ";
+			 this->IsReplaceCheck->Checked = false;
+			 this->IsReusedCheck->Checked = false;
 			 this->comboBox1->Text = "";
 			 this->treeView1->Refresh();
 			 this-> Enable_Add = true;
@@ -606,31 +660,41 @@ private: System::Void New_snpt_Click(System::Object^  sender, System::EventArgs^
 		 }
 private: System::Void Add_button_Click(System::Object^  sender, System::EventArgs^  e) 
 		 {
-			/*if(this->richTextBox1->LineCount != this->richTextBox2->LineCount)
-			{
-				System::Windows::Forms::MessageBox::Show("There is a Difference between number of lines in Original vs replacment code !","Warning",System::Windows::Forms::MessageBoxButtons::OK, 
-					 System::Windows::Forms::MessageBoxIcon::Warning);
-			}*/
+			 System::String^ BugNum;
+			 System::String^ TRQ;
 			 if(this->richTextBox1->Text->Equals("") || this->richTextBox2->Text->Equals(""))
 			 {
 				 System::Windows::Forms::MessageBox::Show("Cannot Take Empty String as input","Error",System::Windows::Forms::MessageBoxButtons::OK, 
 					 System::Windows::Forms::MessageBoxIcon::Error);
 				 return;
 			 }
-			 if(this->Enable_Add && Check_File_Name(this->comboBox1->Text))
+			 if (CheckSnptValidity() && this->Enable_Add)
 			 {
-				this->Snpt_Replacer->Create_Snippit(this->richTextBox1->Text,this->richTextBox2->Text, this->comboBox1->Text);
+				 if (!this->SnippitTypeCombo->Text->Equals("Bug_Report"))
+				 {
+					 BugNum = "NA";
+					 TRQ = "NA";
+				 }
+				 else
+				 {
+					 BugNum = this->BugReportTxt->Text;
+					 TRQ = this->TRAQBox->Text;
+				 }
+				 this->Snpt_Replacer->IncrementID();
+				 this->Snpt_Replacer->Create_Snippit(this->richTextBox1->Text, this->richTextBox2->Text, this->SnippitTypeCombo->Text, this->comboBox1->Text, BugNum, this->JustificationBox->Text,
+					 SWVersion.ToString(), "0", "0", TRQ);
 				this->Refresh_Tree();
 				this-> Enable_Add = false;
 				this->Add_button->BackColor = System::Drawing::Color::Gainsboro;
 				this->toolStripStatusLabel1->Text = "New Snippit Added";
 				this->Add_File_ToCombo(this->comboBox1->Text);
+				IsSaveRequired = true;
 			 }
 			 else
 			 {
-				 if(!Check_File_Name(this->comboBox1->Text))
+				 if (!CheckSnptValidity())
 				 {
-					 System::Windows::Forms::MessageBox::Show("Please Enter Correct File Name","Error",System::Windows::Forms::MessageBoxButtons::OK, System::Windows::Forms::MessageBoxIcon::Error);
+					 System::Windows::Forms::MessageBox::Show("Please Complete all Snippet attributes","Error",System::Windows::Forms::MessageBoxButtons::OK, System::Windows::Forms::MessageBoxIcon::Error);
 				 }
 				 else
 				 {
@@ -652,6 +716,13 @@ private: System::Void Delete_button_Click(System::Object^  sender, System::Event
 				 this->Snpt_Replacer->Delete_Snippit(Num);
 				 this->richTextBox1->Text = "";
 				 this->richTextBox2->Text = "";
+				 this->BugReportTxt->Text = "";
+				 this->SnippitTypeCombo->Text = "";
+				 this->TRAQBox->Text = "";
+				 this->JustificationBox->Text = "";
+				 this->IsReplaceCheck->Checked = false;
+				 this->IsReusedCheck->Checked = false;
+				 this->SWLabel->Text = "SW Version: ";
 				}
 				else
 				{
@@ -659,6 +730,7 @@ private: System::Void Delete_button_Click(System::Object^  sender, System::Event
 				}
 				this->Refresh_Tree();
 				this->toolStripStatusLabel1->Text = "Snippit Deleted";
+				IsSaveRequired = true;
 			}
 			this-> Enable_Add = false;
 			this->Add_button->BackColor = System::Drawing::Color::Gainsboro;
@@ -666,17 +738,21 @@ private: System::Void Delete_button_Click(System::Object^  sender, System::Event
 private: System::Void Edit_button_Click(System::Object^  sender, System::EventArgs^  e) 
 		 {
 			 try{if(this->treeView1->SelectedNode == nullptr){throw 1;}}catch(int x){return;}
-			 array<System::String^>^ loc_data = gcnew array<System::String^>{this->richTextBox1->Text, this->richTextBox2->Text, this->comboBox1->Text};
 			 System::String^ loc_Text = this->treeView1->SelectedNode->Text;
 			 Match^ Num_match = this->pat_num->Match(loc_Text);
 			 System::String^ Number = Num_match->Groups[1]->Value;
+
+			 array<System::String^>^ loc_data = gcnew array<System::String^>{this->richTextBox1->Text, this->richTextBox2->Text, this->SnippitTypeCombo->Text, this->comboBox1->Text, Number, BugReportTxt->Text, 
+				 JustificationBox->Text, TRAQBox->Text};
+
 			 if(!(Number->Equals("")))
 			 {
 				 if(System::Windows::Forms::MessageBox::Show("Are you sure you Want to Edit this Snippit","Important",System::Windows::Forms::MessageBoxButtons::YesNo, System::Windows::Forms::MessageBoxIcon::Warning) == System::Windows::Forms::DialogResult::Yes)
 				 {
 					unsigned short Num = int::Parse(Number);
-					this->Snpt_Replacer->Edit_Snippit(loc_data,Num);
+					this->Snpt_Replacer->Edit_Snippit(loc_data);
 					this->Add_File_ToCombo(this->comboBox1->Text);
+					IsSaveRequired = true;
 				 }
 				 else
 				 {
@@ -692,11 +768,111 @@ private: System::Void Edit_button_Click(System::Object^  sender, System::EventAr
 			 this->Add_button->BackColor = System::Drawing::Color::Gainsboro;
 			 this->toolStripStatusLabel1->Text = "Snippit Edited";
 		 }
-private: System::Void comboBox1_SelectedIndexChanged(System::Object^  sender, System::EventArgs^  e) 
-		 {
+		private: System::Void comboBox1_SelectedIndexChanged(System::Object^  sender, System::EventArgs^  e) 
+				 {
 
-		 }
-private: System::Void SWLabel_Click(System::Object^  sender, System::EventArgs^  e) {
+				 }
+		private: System::Void SWLabel_Click(System::Object^  sender, System::EventArgs^  e) {
+		}
+		private: System::Void SaveBtn_Click(System::Object^  sender, System::EventArgs^  e) 
+		{
+			this->Snpt_Replacer->Save_file();
+			IsSaveRequired = false;
+		}
+		private: bool CheckSnptValidity()
+		{
+			bool IsValid = true;
+			System::String^ typ = SnippitTypeCombo->Text;
+			if (SnippitTypeCombo->Text->Equals("PolySpace_1") || SnippitTypeCombo->Text->Equals("PolySpace_2"))
+			{
+				if (!Check_File_Name(this->comboBox1->Text))
+				{
+					IsValid = false;
+				}
+				else if (this->JustificationBox->Text->Length == 0)
+				{
+					IsValid = false;
+				}
+				else
+				{
+					// Nothing
+				}
+			}
+			else if (SnippitTypeCombo->Text->Equals("Bug_Report"))
+			{
+				if (!Check_File_Name(this->comboBox1->Text))
+				{
+					IsValid = false;
+				}
+				else if (this->JustificationBox->Text->Length == 0)
+				{
+					IsValid = false;
+				}
+				else if (this->BugReportTxt->Text->Length == 0)
+				{
+					IsValid = false;
+				}
+				else if (this->TRAQBox->Text->Length == 0)
+				{
+					IsValid = false;
+				}
+				else
+				{
+					// Nothing
+				}
+			}
+			else{}
+
+			return IsValid;
+		}
+	private: System::Void SnippitTypeCombo_SelectedIndexChanged(System::Object^  sender, System::EventArgs^  e) 
+	{
+		if (this->SnippitTypeCombo->SelectedIndex != 2)
+		{
+			this->BugReportTxt->Text = "";
+			this->BugReportTxt->Enabled = false;
+			this->TRAQBox->Text = "";
+			this->TRAQBox->Enabled = false;
+		}
+		else
+		{
+			this->BugReportTxt->Enabled = true;
+			this->TRAQBox->Enabled = true;
+		}
+	}
+private: System::Void Snippet_Config_FormClosing(System::Object^  sender, System::Windows::Forms::FormClosingEventArgs^  e) 
+{
+	if (IsSaveRequired)
+	{
+		if (System::Windows::Forms::MessageBox::Show("Do You Want to Save your Changes?", "Save Required", System::Windows::Forms::MessageBoxButtons::YesNo, System::Windows::Forms::MessageBoxIcon::Question) == System::Windows::Forms::DialogResult::Yes)
+		{
+			this->Snpt_Replacer->Save_file();
+			IsSaveRequired = false;
+		}
+	}
 }
+	private: System::Void LoadSnptBtn_Click(System::Object^  sender, System::EventArgs^  e) 
+	{
+		this->XML_FileDialog->ShowDialog();
+		if (this->XML_FileDialog->FileName->EndsWith(".xml"))
+		{
+			if (!(this->Snpt_Replacer->Load_XmlFile(this->XML_FileDialog->FileName, SWVersion)))
+			{
+				System::Windows::Forms::MessageBox::Show("Invalid XML file Format", "Error", System::Windows::Forms::MessageBoxButtons::OK, System::Windows::Forms::MessageBoxIcon::Error);
+				return;
+			}
+			else
+			{
+				this->RefillTree();
+				this->Load_File_Names();
+				this->toolStripStatusLabel1->Text = "XML Loaded Succesfully";
+			}
+		}
+		else
+		{
+			System::Windows::Forms::MessageBox::Show("Please Choose a Snippets XML file", "Error", System::Windows::Forms::MessageBoxButtons::OK, System::Windows::Forms::MessageBoxIcon::Error);
+			return;
+		}
+	}
 };
 }

@@ -5,15 +5,16 @@ using namespace Main_package;
 using namespace System::Text::RegularExpressions;
 using namespace System::IO;
 using namespace System::Xml;
+using namespace System::Text;
 
-Replacer::Replacer(void)
+Replacer::Replacer(System::String^ XMLPath)
 	{
 		Snippit_Count = 0;
-		File_Path = "";
-		File_Names = gcnew array<System::String^>(Max_NB_Files);
+		MaximumID = 0;
+		PathofXml = XMLPath;
 		Snippits = gcnew System::Collections::Generic::List < Main_package::Snippit^ >();
-		SnippetDataSet = gcnew System::Data::DataSet();
-		System::Data::DataTable^ Table = gcnew System::Data::DataTable("SnippetList");
+		SnippetDataSet = gcnew System::Data::DataSet("SnippetList");
+		System::Data::DataTable^ Table = gcnew System::Data::DataTable("Snippet");
 		SnippetDataSet->Tables->Add(Table);
 		SnippetDataSet->Tables[0]->Columns->Add(gcnew System::Data::DataColumn("Original"));
 		SnippetDataSet->Tables[0]->Columns->Add(gcnew System::Data::DataColumn("Replacment"));
@@ -29,17 +30,80 @@ Replacer::Replacer(void)
 
 		this->XmlFile = gcnew System::Xml::XmlDocument();
 	}
+bool Replacer::Load_XmlFile(System::String^ File_Path, double CurrVer)
+{
+	this->XmlFile->Load(File_Path);
+	XmlNodeList^ elemList;
+	XmlElement^ root = XmlFile->DocumentElement;
+	System::String^ IsSnippetReuesed;
+	double LoadedVer = 0;
+
+	try
+	{
+		elemList = root->GetElementsByTagName("Snippet");
+		/*Clear Data*/
+		this->Reload();
+		Snippit_Count = elemList->Count;
+		for (int i = 0; i < Snippit_Count; i++)
+		{
+			try
+			{
+				LoadedVer = double::Parse((elemList->Item(i)->ChildNodes->Item(8)->InnerText));
+			}
+			catch (System::Exception^ e)
+			{
+				LoadedVer = 0;
+			}
+			if (LoadedVer < CurrVer)
+			{
+				IsSnippetReuesed = "1";
+			}
+			else
+			{
+				IsSnippetReuesed = "0";
+			}
+			SnippetDataSet->Tables[0]->Rows->Add(gcnew array < System::String^ > {(elemList->Item(i)->ChildNodes->Item(0)->InnerText),
+				(elemList->Item(i)->ChildNodes->Item(1)->InnerText),
+				(elemList->Item(i)->ChildNodes->Item(2)->InnerText),
+				(elemList->Item(i)->ChildNodes->Item(3)->InnerText),
+				(elemList->Item(i)->ChildNodes->Item(4)->InnerText),
+				(elemList->Item(i)->ChildNodes->Item(5)->InnerText),
+				(elemList->Item(i)->ChildNodes->Item(6)->InnerText),
+				(elemList->Item(i)->ChildNodes->Item(7)->InnerText),
+				IsSnippetReuesed,
+				(elemList->Item(i)->ChildNodes->Item(9)->InnerText),
+				(elemList->Item(i)->ChildNodes->Item(10)->InnerText)});
+
+			Snippits->Add(gcnew Snippit(SnippetDataSet->Tables[0]->Rows[i]->ItemArray[0]->ToString(), this->SnippetDataSet->Tables[0]->Rows[i]->ItemArray[1]->ToString(),
+				SnippetDataSet->Tables[0]->Rows[i]->ItemArray[2]->ToString(), SnippetDataSet->Tables[0]->Rows[i]->ItemArray[3]->ToString(),
+				SnippetDataSet->Tables[0]->Rows[i]->ItemArray[4]->ToString(), SnippetDataSet->Tables[0]->Rows[i]->ItemArray[5]->ToString(),
+				SnippetDataSet->Tables[0]->Rows[i]->ItemArray[6]->ToString(), SnippetDataSet->Tables[0]->Rows[i]->ItemArray[7]->ToString(),
+				SnippetDataSet->Tables[0]->Rows[i]->ItemArray[8]->ToString(), SnippetDataSet->Tables[0]->Rows[i]->ItemArray[9]->ToString(),
+				SnippetDataSet->Tables[0]->Rows[i]->ItemArray[10]->ToString()));
+
+		}
+
+		FindMaxId();
+	}
+	catch (System::Exception^ exeption)
+	{
+		return false;
+	}
+	return true;
+}
 bool Replacer::Load_XmlFile(System::String^ File_Path)
 {
 	this->XmlFile->Load(File_Path);
 	XmlNodeList^ elemList;
 	XmlElement^ root = XmlFile->DocumentElement;
+
 	try
 	{
-		elemList = root->GetElementsByTagName("Snippit");
+		elemList = root->GetElementsByTagName("Snippet");
 		Snippit_Count = elemList->Count;
 		for (int i = 0; i < Snippit_Count; i++)
 		{
+
 			SnippetDataSet->Tables[0]->Rows->Add(gcnew array < System::String^ > {(elemList->Item(i)->ChildNodes->Item(0)->InnerText),
 				(elemList->Item(i)->ChildNodes->Item(1)->InnerText),
 				(elemList->Item(i)->ChildNodes->Item(2)->InnerText),
@@ -60,6 +124,8 @@ bool Replacer::Load_XmlFile(System::String^ File_Path)
 				SnippetDataSet->Tables[0]->Rows[i]->ItemArray[10]->ToString()));
 
 		}
+
+		FindMaxId();
 	}
 	catch (System::Exception^ exeption)
 	{
@@ -67,46 +133,142 @@ bool Replacer::Load_XmlFile(System::String^ File_Path)
 	}
 	return true;
 }
-	void Replacer::Create_Snippit(System::String^ snpt_original, System::String^ snpt_replacment, System::String^ FileName)
+void Replacer::Create_Snippit(System::String^ snpt_original, System::String^ snpt_replacment, System::String^ Type, System::String^ FileName,
+							  System::String^ Snpt_BugRprt, System::String^ Justification, System::String^ Version,
+							  System::String^ IsReuese, System::String^ IsReplace, System::String^ TRAQ)
 	{
 		Snippit_Count++;
-		Snippits[Snippit_Count - 1]->Set_Original(snpt_original);
-		Snippits[Snippit_Count - 1]->Set_Replacment(snpt_replacment);
-		Snippits[Snippit_Count - 1]->Set_File_Name(FileName);
-		Replacer::Refresh_File();
+		Snippits->Add(gcnew Snippit(snpt_original, snpt_replacment, Type, FileName, this->MaximumID.ToString() , Snpt_BugRprt, Justification, Version, IsReuese, IsReplace, TRAQ));
 	}
 	void Replacer::Refresh_File()
 	{
+		System::String^ snptype;
+		System::String^ IsReues = "0";
+		System::String^ IsReplaced = "0";
+		System::String^ BugNum;
 		/*Clear DataSet*/
 		SnippetDataSet->Clear();
 
 		System::String^ File = "";
 		for(int i=0;i < Snippit_Count;i++)
 		{
+			/*Rule Out any Corrupted Snippets*/
 			if(Snippits[i]->Get_Original() == nullptr)
 			{
 				break;
 			}
 
-			SnippetDataSet->Tables[0]->Rows->Add();
+			BugNum = Snippits[i]->GetBugReportNum().ToString();
+
+			if (Snippits[i]->IsSnippetReplaced())
+			{
+				IsReplaced = "1";
+			}
+			if (Snippits[i]->IsSnippetReused())
+			{
+				IsReues = "1";
+			}
+			switch (Snippits[i]->GetSnippetType())
+			{
+			case SnippitType::PolySpace_1:
+				snptype = "PolySpace_1";
+				break;
+			case SnippitType::PolySpace_2:
+				snptype = "PolySpace_2";
+				break;
+			case SnippitType::Bug_Report:
+				snptype = "Bug_Report";
+				break;
+			default:
+				snptype = "Unknown Type";
+				break;
+			}
+			/*Fill to DataSet*/
+			SnippetDataSet->Tables[0]->Rows->Add(Snippits[i]->Get_Original(), Snippits[i]->Get_Replacment(), snptype, Snippits[i]->Get_File_Name(),
+				Snippits[i]->GetID(), BugNum, Snippits[i]->Get_Snippet_Justification(), Snippits[i]->GetSW_Version(), IsReues, IsReplaced, Snippits[i]->GetBugTRAQ());
 			
 		}
-		System::IO::File::WriteAllText(Replacer::File_Path, File);
+		// Create the FileStream to write with.
+		System::IO::FileStream^ stream = gcnew System::IO::FileStream
+			(PathofXml, System::IO::FileMode::Create, System::IO::FileAccess::Write, System::IO::FileShare::None, 4096, false);
+		SnippetDataSet->WriteXml(stream, System::Data::XmlWriteMode::IgnoreSchema);
+		stream->Close();
 	}
 	void Replacer::Delete_Snippit(unsigned short Snpt_number)
 	{
-		Snippits[Snpt_number]->Set_Original("NULL");
-		Snippits[Snpt_number]->Set_Replacment("NULL");
-		Snippits[Snpt_number]->Set_File_Name("NULL");
-		//Snippits[Snpt_number]->ByPass(true);
-		Sort_Data();
-		Refresh_File();
+		int Index = 0;
+		bool Found = false;
+		/*Find Index of tSnippit with passed ID*/
+		{
+			for (int i = 0; i < Snippit_Count; i++)
+			{
+				if (int::Parse(Snippits[i]->GetID()) == Snpt_number)
+				{
+					Index = i;
+					Found = true;
+				}
+			}
+		}
+		if (Found)
+		{
+			Snippits->RemoveAt(Index);
+			Snippit_Count--;
+			FindMaxId();
+		}
+	}
+	array<System::String^>^ Replacer::Get_snippitByID(unsigned short Snpt_number)
+	{
+		System::String^ snptype;
+		System::String^ IsReues = "NO";
+		System::String^ IsReplaced = "NO";
+		int i;
+		//Get Index of Snippet in List
+		for (i = 0; i < Get_Snpt_Count(); i++)
+		{
+			if (Snippits[i]->GetID()->Equals(Snpt_number.ToString()))
+			{
+				break;
+			}
+		}
+		if (i < Get_Snpt_Count())
+		{
+			System::String^ BugNum = Snippits[i]->GetBugReportNum().ToString();
+			if (Snippits[i]->IsSnippetReplaced())
+			{
+				IsReplaced = "YES";
+			}
+			if (Snippits[i]->IsSnippetReused())
+			{
+				IsReues = "YES";
+			}
+			switch (Snippits[i]->GetSnippetType())
+			{
+			case SnippitType::PolySpace_1:
+				snptype = "PolySpace_1";
+				break;
+			case SnippitType::PolySpace_2:
+				snptype = "PolySpace_2";
+				break;
+			case SnippitType::Bug_Report:
+				snptype = "Bug_Report";
+				break;
+			default:
+				snptype = "Unknown Type";
+				break;
+			}
+			array<System::String^>^Snippit = { Snippits[i]->Get_Original(), Snippits[i]->Get_Replacment(), Snippits[i]->Get_File_Name(), snptype,
+				Snippits[i]->Get_Snippet_Justification(), Snippits[i]->GetSW_Version(), IsReues, IsReplaced, Snippits[i]->GetBugTRAQ(), Snippits[i]->GetID(),
+				BugNum };
+			return Snippit;
+		}
+		return nullptr;
 	}
 	array<System::String^>^ Replacer::Get_snippit(unsigned short Snpt_number)
 	{
 		System::String^ snptype;
 		System::String^ IsReues = "NO";
 		System::String^ IsReplaced = "NO";
+
 		System::String^ BugNum = Snippits[Snpt_number]->GetBugReportNum().ToString();
 		if (Snippits[Snpt_number]->IsSnippetReplaced())
 		{
@@ -118,30 +280,62 @@ bool Replacer::Load_XmlFile(System::String^ File_Path)
 		}
 		switch (Snippits[Snpt_number]->GetSnippetType())
 		{
-			case SnippitType::PolySpace_1:
-				snptype = "Polyspace_1";
-				break;
-			case SnippitType::PolySpace_2:
-				snptype = "Polyspace_2";
-				break;
-			case SnippitType::Bug_Report:
-				snptype = "Bug_Report";
-				break;
-			default:
-				snptype = "Unknown Type";
-				break;
+		case SnippitType::PolySpace_1:
+			snptype = "PolySpace_1";
+			break;
+		case SnippitType::PolySpace_2:
+			snptype = "PolySpace_2";
+			break;
+		case SnippitType::Bug_Report:
+			snptype = "Bug_Report";
+			break;
+		default:
+			snptype = "Unknown Type";
+			break;
 		}
-		array<System::String^>^ Snippit = { Snippits[Snpt_number]->Get_Original(), Snippits[Snpt_number]->Get_Replacment(), Snippits[Snpt_number]->Get_File_Name(), snptype, 
+		array<System::String^>^Snippit = { Snippits[Snpt_number]->Get_Original(), Snippits[Snpt_number]->Get_Replacment(), Snippits[Snpt_number]->Get_File_Name(), snptype,
 			Snippits[Snpt_number]->Get_Snippet_Justification(), Snippits[Snpt_number]->GetSW_Version(), IsReues, IsReplaced, Snippits[Snpt_number]->GetBugTRAQ(), Snippits[Snpt_number]->GetID(),
 			BugNum };
 		return Snippit;
 	}
-	void Replacer::Edit_Snippit(array<System::String^>^ snpt, unsigned short Snpt_number)
+	void Replacer::Edit_Snippit(array<System::String^>^ snpt)
 	{
-		Snippits[Snpt_number]->Set_Original(snpt[0]);
-		Snippits[Snpt_number]->Set_Replacment(snpt[1]);
-		Snippits[Snpt_number]->Set_File_Name(snpt[2]);
-		Refresh_File();
+		int index = 0;
+		SnippitType Type;
+		if (snpt[2]->Equals("PolySpace_1"))
+		{
+			Type = SnippitType::PolySpace_1;
+		}
+		else if (snpt[2]->Equals("PolySpace_2"))
+		{
+			Type = SnippitType::PolySpace_2;
+		}
+		else if (snpt[2]->Equals("Bug_Report"))
+		{
+			Type = SnippitType::Bug_Report;
+		}
+		else
+		{
+			Type = SnippitType::UnknownType;
+		}
+		/*Find Index of Snippet*/
+		for (index = 0; index < Snippit_Count; index++)
+		{
+			if (Snippits[index]->GetID()->Equals(snpt[4]))
+			{
+				Snippits[index]->Set_Original(snpt[0]);
+				Snippits[index]->Set_Replacment(snpt[1]);
+				Snippits[index]->SetSnippetType(Type);
+				Snippits[index]->Set_File_Name(snpt[3]);
+				if (!(snpt[5]->Equals("")))
+				{
+					Snippits[index]->SetBugReportNum(int::Parse(snpt[5]));
+					Snippits[index]->Set_BugTRAQ(snpt[7]);
+				}
+				Snippits[index]->Set_Snippet_Justification(snpt[6]);
+				break;
+			}
+		}
 	}
 	bool Replacer::Contains(System::String^ pattern, array<System::String^>^ snpt)
 	{
@@ -152,13 +346,13 @@ bool Replacer::Load_XmlFile(System::String^ File_Path)
 		}
 		return false;
 	}
+	int Replacer::GetMaxID(void)
+	{
+		return this->Replacer::MaximumID;
+	}
 	void Replacer::Save_file(void)
 	{
 		Refresh_File();
-	}
-	void Replacer::Delete_file(void)
-	{
-		System::IO::File::WriteAllText(Replacer::File_Path, "");
 	}
 	int Replacer::Get_Snpt_Count(void)
 	{
@@ -167,58 +361,24 @@ bool Replacer::Load_XmlFile(System::String^ File_Path)
 	void Replacer::Reload(void)
 	{
 		Snippit_Count = 0;
-		for(int i=0;i < MAX_NB_SNPT;i++)
+		/*Clear Snippits List*/
+		Snippits->Clear();
+		SnippetDataSet->Clear();
+	}
+	void Replacer::FindMaxId()
+	{
+		int MaxId = 0;
+		for (int i = 0; i < Snippit_Count; i++)
 		{
-			if((Snippits[i]->Get_Original() == nullptr) && (Snippits[i]->Get_Replacment() == nullptr))
+			if (int::Parse(Snippits[i]->GetID()) > MaxId)
 			{
-				break;
+				MaxId = int::Parse(Snippits[i]->GetID());
 			}
-			else
-			{
-				Snippits[i]->Set_Original("NULL");
-				Snippits[i]->Set_Replacment("NULL");
-				Snippits[i]->Set_File_Name("NULL");
-				Snippits[i]->ByPass(false);
 
-			}
+			MaximumID = MaxId;
 		}
 	}
-	void Replacer::Sort_Data()
+	void Replacer::IncrementID(void)
 	{
-		bool null = false;
-		for(int i =0;i< Snippit_Count;i++)
-		{
-			if(Snippits[i]->Get_Original() == nullptr)
-			{
-				if(i == (Snippit_Count) - 1)
-				{
-					break;
-				}
-				null = true;
-				Snippits[i]->Set_Original(Snippits[i+1]->Get_Original());
-				Snippits[i]->Set_Replacment(Snippits[i+1]->Get_Replacment());
-				Snippits[i]->Set_File_Name(Snippits[i+1]->Get_File_Name());
-				continue;
-			}
-			else if (null)
-			{
-				if(i == (Snippit_Count) - 1)
-				{
-					Snippits[i]->Set_Original("NULL");
-					Snippits[i]->Set_Replacment("NULL");
-					Snippits[i]->Set_File_Name("NULL");
-				}
-				else
-				{
-					Snippits[i]->Set_Original(Snippits[i+1]->Get_Original());
-					Snippits[i]->Set_Replacment(Snippits[i+1]->Get_Replacment());
-					Snippits[i]->Set_File_Name(Snippits[i+1]->Get_File_Name());
-				}
-			}
-			else
-			{
-				/* Continue */
-			}
-		}
-		 Snippit_Count --;
+		this->MaximumID++;
 	}

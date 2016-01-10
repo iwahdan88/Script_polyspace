@@ -1,9 +1,11 @@
-﻿Build started 1/1/2016 1:49:06 AM.
+﻿Build started 1/9/2016 11:48:38 PM.
      1>Project "C:\Users\islam\Documents\Visual Studio 2013\Projects\Script_PS\Script_PS\Script_PS.vcxproj" on node 2 (Build target(s)).
      1>ClCompile:
          D:\Program Files (x86)\Microsoft\Visual Studio 2013\VC\bin\CL.exe /c /AI"C:\Program Files (x86)\Reference Assemblies\Microsoft\Framework\.NETFramework\v4.0" /AI"C:\Program Files (x86)\Windows Kits\8.1\References\CommonConfiguration\Neutral" /Zi /clr:pure /nologo /W3 /WX- /O2 /Oy- /D WIN32 /D NDEBUG /D _USING_V110_SDK71_ /D _UNICODE /D UNICODE /EHa /MD /GS /fp:precise /Zc:wchar_t /Zc:forScope /Yu"stdafx.h" /Fp"Release\Script_PS.pch" /Fo"Release\\" /Fd"Release\vc120.pdb" /TP /FU"C:\Program Files (x86)\Reference Assemblies\Microsoft\Framework\.NETFramework\v4.0\mscorlib.dll" /FUD:\ScinitillaDlls\ScintillaNET.dll /FU"C:\Program Files (x86)\Reference Assemblies\Microsoft\Framework\.NETFramework\v4.0\System.Data.dll" /FU"C:\Program Files (x86)\Reference Assemblies\Microsoft\Framework\.NETFramework\v4.0\System.Design.dll" /FU"C:\Program Files (x86)\Reference Assemblies\Microsoft\Framework\.NETFramework\v4.0\System.dll" /FU"C:\Program Files (x86)\Reference Assemblies\Microsoft\Framework\.NETFramework\v4.0\System.Drawing.dll" /FU"C:\Program Files (x86)\Reference Assemblies\Microsoft\Framework\.NETFramework\v4.0\System.Windows.Forms.dll" /FU"C:\Program Files (x86)\Reference Assemblies\Microsoft\Framework\.NETFramework\v4.0\System.Xml.dll" /analyze- /errorReport:prompt /clr:nostdlib Code_Replacer.cpp
          Code_Replacer.cpp
-     1>Code_Replacer.cpp(64): warning C4101: 'exeption' : unreferenced local variable
+     1>Code_Replacer.cpp(53): warning C4101: 'e' : unreferenced local variable
+     1>Code_Replacer.cpp(88): warning C4101: 'exeption' : unreferenced local variable
+     1>Code_Replacer.cpp(130): warning C4101: 'exeption' : unreferenced local variable
        Link:
          D:\Program Files (x86)\Microsoft\Visual Studio 2013\VC\bin\link.exe /ERRORREPORT:PROMPT /OUT:"C:\Users\islam\Documents\Visual Studio 2013\Projects\Script_PS\Release\Script_PS.exe" /INCREMENTAL:NO /NOLOGO /ASSEMBLYRESOURCE:Release\Script_PS.Snippit_GUI.resources /ASSEMBLYRESOURCE:Release\Script_PS.Script_GUI.resources /MANIFEST /MANIFESTUAC:"level='asInvoker' uiAccess='false'" /manifest:embed /DEBUG /PDB:"C:\Users\islam\Documents\Visual Studio 2013\Projects\Script_PS\Release\Script_PS.pdb" /SUBSYSTEM:WINDOWS,"5.01" /TLBID:1 /ENTRY:"main" /DYNAMICBASE /FIXED:NO /NXCOMPAT /MACHINE:X86 /SAFESEH Release\app.res
          Release\Script.obj
@@ -18,4 +20,4 @@
 
 Build succeeded.
 
-Time Elapsed 00:00:02.02
+Time Elapsed 00:00:01.25

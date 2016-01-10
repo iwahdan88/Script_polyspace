@@ -1,6 +1,6 @@
 #include "stdafx.h"
 #include "Snippit.h"
-
+using System::Exception;
 using namespace Main_package;
 
 Snippit::Snippit(void)
@@ -61,7 +61,14 @@ Snippit::Snippit(System::String^ Original, System::String^ Replacment, System::S
 				{
 					Snippit::SnptType = UnknownType;
 				}
-				Snippit::BugReportNum = int::Parse(BugReportNum);
+				try
+				{
+					Snippit::BugReportNum = int::Parse(BugReportNum);
+				}
+				catch (Exception^ e)
+				{
+					Snippit::BugReportNum = 0;
+				}
 				Snippit::bypass = false;
 			}
 			void Snippit::Set_Original(System::String^ s)
@@ -101,11 +108,11 @@ Snippit::Snippit(System::String^ Original, System::String^ Replacment, System::S
 			{
 				if (Just->Equals("NULL"))
 				{
-					File_Name = nullptr;
+					Justification = nullptr;
 				}
 				else
 				{
-					File_Name = Just;
+					Justification = Just;
 				}
 			}
 			void Snippit::Set_SW_Version(System::String^ Ver)
