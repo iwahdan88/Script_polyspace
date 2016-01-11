@@ -29,7 +29,7 @@ Class Main_package.Script: AutoLayout, AnsiClass, Class, Public, BeforeFieldInit
     getScript_path(): PrivateScope, Public, HideBySig
     GetXmlFilePath(): PrivateScope, Public, HideBySig
 Class Main_package.Snippit: AutoLayout, AnsiClass, Class, Public, BeforeFieldInit
-    Void .ctor(System.String, System.String, System.String, System.String, System.String, System.String, System.String, System.String, System.String, System.String, System.String): PrivateScope, Public, HideBySig, SpecialName, RTSpecialName
+    Void .ctor(System.String, System.String, System.String, System.String, System.String, System.String, System.String, System.String, System.String, System.String, System.String, Boolean): PrivateScope, Public, HideBySig, SpecialName, RTSpecialName
     Void .ctor(): PrivateScope, Public, HideBySig, SpecialName, RTSpecialName
   Methods:
     Set_Original(String): PrivateScope, Public, HideBySig
@@ -43,6 +43,7 @@ Class Main_package.Snippit: AutoLayout, AnsiClass, Class, Public, BeforeFieldIni
     Set_ID(String): PrivateScope, Public, HideBySig
     SetSnippetType(SnippitType): PrivateScope, Public, HideBySig
     SetBugReportNum(Int32): PrivateScope, Public, HideBySig
+    SetInclude(Boolean(HasFieldMarshal)): PrivateScope, Public, HideBySig
     GetSW_Version(): PrivateScope, Public, HideBySig
     IsSnippetReused(): PrivateScope, Public, HideBySig
     IsSnippetReplaced(): PrivateScope, Public, HideBySig
@@ -54,6 +55,7 @@ Class Main_package.Snippit: AutoLayout, AnsiClass, Class, Public, BeforeFieldIni
     Get_Replacment(): PrivateScope, Public, HideBySig
     Get_File_Name(): PrivateScope, Public, HideBySig
     Get_Snippet_Justification(): PrivateScope, Public, HideBySig
+    GetInclude(): PrivateScope, Public, HideBySig
     ByPass(Boolean(HasFieldMarshal)): PrivateScope, Public, HideBySig
     Is_ByPassed(): PrivateScope, Public, HideBySig
 Class Main_package.Replacer: AutoLayout, AnsiClass, Class, Public, BeforeFieldInit

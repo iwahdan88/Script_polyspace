@@ -36,7 +36,7 @@ namespace Script_PS {
 			{
 				this->Path = XmlPath;
 				this->Enable_Add = false;
-				this->pat_num = gcnew Regex("([0-9]+)");
+				this->pat_num = gcnew Regex("\\#\\s*([0-9]+)");
 				this->Fill_Tree();
 				this->Load_File_Names();
 			}
@@ -78,7 +78,9 @@ namespace Script_PS {
 	private: System::String^ Path;
 	private: System::Windows::Forms::Button^  New_snpt;
 	private: array<System::Windows::Forms::TreeNode^>^ Snpts;
-	private: TreeNode^ Global;
+	private: TreeNode^ PS_2;
+	private: TreeNode^ PS_Red;
+	private: TreeNode^ PS_1;
 	private: bool Enable_Add;
 	private: ScintillaNET::Scintilla^  richTextBox1;
 	private: ScintillaNET::Scintilla^  richTextBox2;
@@ -101,6 +103,7 @@ namespace Script_PS {
 	private: System::Windows::Forms::Button^  SaveBtn;
 	private: System::Windows::Forms::Button^  LoadSnptBtn;
 	private: System::Windows::Forms::OpenFileDialog^  XML_FileDialog;
+	private: System::Windows::Forms::CheckBox^  IncludeCheck;
 
 
 
@@ -148,6 +151,7 @@ namespace Script_PS {
 			this->SaveBtn = (gcnew System::Windows::Forms::Button());
 			this->LoadSnptBtn = (gcnew System::Windows::Forms::Button());
 			this->XML_FileDialog = (gcnew System::Windows::Forms::OpenFileDialog());
+			this->IncludeCheck = (gcnew System::Windows::Forms::CheckBox());
 			(cli::safe_cast<System::ComponentModel::ISupportInitialize^>(this->richTextBox1))->BeginInit();
 			(cli::safe_cast<System::ComponentModel::ISupportInitialize^>(this->richTextBox2))->BeginInit();
 			this->statusStrip1->SuspendLayout();
@@ -158,14 +162,14 @@ namespace Script_PS {
 			this->treeView1->BackColor = System::Drawing::SystemColors::AppWorkspace;
 			this->treeView1->Location = System::Drawing::Point(12, 84);
 			this->treeView1->Name = L"treeView1";
-			this->treeView1->Size = System::Drawing::Size(130, 559);
+			this->treeView1->Size = System::Drawing::Size(130, 390);
 			this->treeView1->TabIndex = 0;
 			this->treeView1->AfterSelect += gcnew System::Windows::Forms::TreeViewEventHandler(this, &Snippet_Config::treeView1_AfterSelect);
 			// 
 			// Add_button
 			// 
 			this->Add_button->BackColor = System::Drawing::Color::Gainsboro;
-			this->Add_button->Location = System::Drawing::Point(286, 617);
+			this->Add_button->Location = System::Drawing::Point(286, 448);
 			this->Add_button->Name = L"Add_button";
 			this->Add_button->Size = System::Drawing::Size(102, 26);
 			this->Add_button->TabIndex = 3;
@@ -175,7 +179,7 @@ namespace Script_PS {
 			// 
 			// Delete_button
 			// 
-			this->Delete_button->Location = System::Drawing::Point(1033, 617);
+			this->Delete_button->Location = System::Drawing::Point(1033, 448);
 			this->Delete_button->Name = L"Delete_button";
 			this->Delete_button->Size = System::Drawing::Size(102, 26);
 			this->Delete_button->TabIndex = 4;
@@ -185,7 +189,7 @@ namespace Script_PS {
 			// 
 			// Edit_button
 			// 
-			this->Edit_button->Location = System::Drawing::Point(1155, 617);
+			this->Edit_button->Location = System::Drawing::Point(1155, 448);
 			this->Edit_button->Name = L"Edit_button";
 			this->Edit_button->Size = System::Drawing::Size(102, 26);
 			this->Edit_button->TabIndex = 5;
@@ -206,7 +210,7 @@ namespace Script_PS {
 			// label2
 			// 
 			this->label2->AutoSize = true;
-			this->label2->Location = System::Drawing::Point(160, 53);
+			this->label2->Location = System::Drawing::Point(160, 94);
 			this->label2->Name = L"label2";
 			this->label2->Size = System::Drawing::Size(70, 13);
 			this->label2->TabIndex = 7;
@@ -216,7 +220,7 @@ namespace Script_PS {
 			// label3
 			// 
 			this->label3->AutoSize = true;
-			this->label3->Location = System::Drawing::Point(815, 53);
+			this->label3->Location = System::Drawing::Point(734, 94);
 			this->label3->Name = L"label3";
 			this->label3->Size = System::Drawing::Size(64, 13);
 			this->label3->TabIndex = 8;
@@ -234,7 +238,7 @@ namespace Script_PS {
 			// 
 			// Refresh
 			// 
-			this->Refresh->Location = System::Drawing::Point(1095, 17);
+			this->Refresh->Location = System::Drawing::Point(929, 14);
 			this->Refresh->Name = L"Refresh";
 			this->Refresh->Size = System::Drawing::Size(94, 22);
 			this->Refresh->TabIndex = 11;
@@ -244,7 +248,7 @@ namespace Script_PS {
 			// 
 			// New_snpt
 			// 
-			this->New_snpt->Location = System::Drawing::Point(163, 617);
+			this->New_snpt->Location = System::Drawing::Point(163, 448);
 			this->New_snpt->Name = L"New_snpt";
 			this->New_snpt->Size = System::Drawing::Size(102, 26);
 			this->New_snpt->TabIndex = 13;
@@ -256,10 +260,10 @@ namespace Script_PS {
 			// 
 			this->richTextBox1->ConfigurationManager->Language = L"cs";
 			this->richTextBox1->Indentation->TabWidth = 4;
-			this->richTextBox1->Location = System::Drawing::Point(163, 84);
+			this->richTextBox1->Location = System::Drawing::Point(163, 120);
 			this->richTextBox1->Margins->Margin0->Width = 20;
 			this->richTextBox1->Name = L"richTextBox1";
-			this->richTextBox1->Size = System::Drawing::Size(600, 403);
+			this->richTextBox1->Size = System::Drawing::Size(496, 280);
 			this->richTextBox1->Styles->BraceBad->FontName = L"Verdana\0\0\0\0\0\0\0\0\0\0\0\0\0";
 			this->richTextBox1->Styles->BraceLight->FontName = L"Verdana\0\0\0\0\0\0\0\0\0\0\0\0\0";
 			this->richTextBox1->Styles->CallTip->FontName = L"Segoe UI\0\0\0\0\0\0\0\0\0\0\0\0";
@@ -276,10 +280,10 @@ namespace Script_PS {
 			// 
 			this->richTextBox2->ConfigurationManager->Language = L"cs";
 			this->richTextBox2->Indentation->TabWidth = 4;
-			this->richTextBox2->Location = System::Drawing::Point(818, 84);
+			this->richTextBox2->Location = System::Drawing::Point(737, 120);
 			this->richTextBox2->Margins->Margin0->Width = 25;
 			this->richTextBox2->Name = L"richTextBox2";
-			this->richTextBox2->Size = System::Drawing::Size(600, 403);
+			this->richTextBox2->Size = System::Drawing::Size(536, 280);
 			this->richTextBox2->Styles->BraceBad->FontName = L"Verdana\0\0\0\0\0\0\0\0\0\0\0\0\0";
 			this->richTextBox2->Styles->BraceLight->FontName = L"Verdana\0\0\0\0\0\0\0\0\0\0\0\0\0";
 			this->richTextBox2->Styles->CallTip->FontName = L"Segoe UI\0\0\0\0\0\0\0\0\0\0\0\0";
@@ -295,9 +299,9 @@ namespace Script_PS {
 			// statusStrip1
 			// 
 			this->statusStrip1->Items->AddRange(gcnew cli::array< System::Windows::Forms::ToolStripItem^  >(1) { this->toolStripStatusLabel1 });
-			this->statusStrip1->Location = System::Drawing::Point(0, 665);
+			this->statusStrip1->Location = System::Drawing::Point(0, 508);
 			this->statusStrip1->Name = L"statusStrip1";
-			this->statusStrip1->Size = System::Drawing::Size(1448, 22);
+			this->statusStrip1->Size = System::Drawing::Size(1300, 22);
 			this->statusStrip1->TabIndex = 16;
 			this->statusStrip1->Text = L"statusStrip1";
 			// 
@@ -312,7 +316,7 @@ namespace Script_PS {
 			this->comboBox1->FormattingEnabled = true;
 			this->comboBox1->Location = System::Drawing::Point(335, 14);
 			this->comboBox1->Name = L"comboBox1";
-			this->comboBox1->Size = System::Drawing::Size(178, 21);
+			this->comboBox1->Size = System::Drawing::Size(133, 21);
 			this->comboBox1->TabIndex = 17;
 			this->comboBox1->SelectedIndexChanged += gcnew System::EventHandler(this, &Snippet_Config::comboBox1_SelectedIndexChanged);
 			// 
@@ -321,7 +325,7 @@ namespace Script_PS {
 			this->SnippitTypeCombo->FormattingEnabled = true;
 			this->SnippitTypeCombo->Location = System::Drawing::Point(613, 14);
 			this->SnippitTypeCombo->Name = L"SnippitTypeCombo";
-			this->SnippitTypeCombo->Size = System::Drawing::Size(177, 21);
+			this->SnippitTypeCombo->Size = System::Drawing::Size(129, 21);
 			this->SnippitTypeCombo->TabIndex = 18;
 			this->SnippitTypeCombo->SelectedIndexChanged += gcnew System::EventHandler(this, &Snippet_Config::SnippitTypeCombo_SelectedIndexChanged);
 			// 
@@ -355,7 +359,7 @@ namespace Script_PS {
 			// 
 			this->IsReplaceCheck->AutoSize = true;
 			this->IsReplaceCheck->Enabled = false;
-			this->IsReplaceCheck->Location = System::Drawing::Point(1222, 21);
+			this->IsReplaceCheck->Location = System::Drawing::Point(1033, 15);
 			this->IsReplaceCheck->Name = L"IsReplaceCheck";
 			this->IsReplaceCheck->Size = System::Drawing::Size(100, 17);
 			this->IsReplaceCheck->TabIndex = 22;
@@ -366,7 +370,7 @@ namespace Script_PS {
 			// 
 			this->IsReusedCheck->AutoSize = true;
 			this->IsReusedCheck->Enabled = false;
-			this->IsReusedCheck->Location = System::Drawing::Point(1222, 44);
+			this->IsReusedCheck->Location = System::Drawing::Point(1033, 38);
 			this->IsReusedCheck->Name = L"IsReusedCheck";
 			this->IsReusedCheck->Size = System::Drawing::Size(194, 17);
 			this->IsReusedCheck->TabIndex = 23;
@@ -376,7 +380,7 @@ namespace Script_PS {
 			// SWLabel
 			// 
 			this->SWLabel->AutoSize = true;
-			this->SWLabel->Location = System::Drawing::Point(888, 17);
+			this->SWLabel->Location = System::Drawing::Point(813, 22);
 			this->SWLabel->Name = L"SWLabel";
 			this->SWLabel->Size = System::Drawing::Size(66, 13);
 			this->SWLabel->TabIndex = 25;
@@ -402,7 +406,7 @@ namespace Script_PS {
 			// 
 			// JustificationBox
 			// 
-			this->JustificationBox->Location = System::Drawing::Point(537, 506);
+			this->JustificationBox->Location = System::Drawing::Point(509, 430);
 			this->JustificationBox->Name = L"JustificationBox";
 			this->JustificationBox->Size = System::Drawing::Size(476, 56);
 			this->JustificationBox->TabIndex = 29;
@@ -411,7 +415,7 @@ namespace Script_PS {
 			// JustLabel
 			// 
 			this->JustLabel->AutoSize = true;
-			this->JustLabel->Location = System::Drawing::Point(437, 528);
+			this->JustLabel->Location = System::Drawing::Point(425, 455);
 			this->JustLabel->Name = L"JustLabel";
 			this->JustLabel->Size = System::Drawing::Size(62, 13);
 			this->JustLabel->TabIndex = 30;
@@ -419,7 +423,7 @@ namespace Script_PS {
 			// 
 			// SaveBtn
 			// 
-			this->SaveBtn->Location = System::Drawing::Point(12, 10);
+			this->SaveBtn->Location = System::Drawing::Point(149, 11);
 			this->SaveBtn->Name = L"SaveBtn";
 			this->SaveBtn->Size = System::Drawing::Size(59, 24);
 			this->SaveBtn->TabIndex = 31;
@@ -429,7 +433,7 @@ namespace Script_PS {
 			// 
 			// LoadSnptBtn
 			// 
-			this->LoadSnptBtn->Location = System::Drawing::Point(654, 617);
+			this->LoadSnptBtn->Location = System::Drawing::Point(8, 10);
 			this->LoadSnptBtn->Name = L"LoadSnptBtn";
 			this->LoadSnptBtn->Size = System::Drawing::Size(109, 25);
 			this->LoadSnptBtn->TabIndex = 32;
@@ -441,12 +445,23 @@ namespace Script_PS {
 			// 
 			this->XML_FileDialog->FileName = L"openFileDialog1";
 			// 
+			// IncludeCheck
+			// 
+			this->IncludeCheck->AutoSize = true;
+			this->IncludeCheck->Location = System::Drawing::Point(816, 53);
+			this->IncludeCheck->Name = L"IncludeCheck";
+			this->IncludeCheck->Size = System::Drawing::Size(95, 17);
+			this->IncludeCheck->TabIndex = 33;
+			this->IncludeCheck->Text = L"Include in Run";
+			this->IncludeCheck->UseVisualStyleBackColor = true;
+			// 
 			// Snippet_Config
 			// 
 			this->AutoScaleMode = System::Windows::Forms::AutoScaleMode::Inherit;
 			this->AutoSizeMode = System::Windows::Forms::AutoSizeMode::GrowAndShrink;
 			this->AutoValidate = System::Windows::Forms::AutoValidate::EnablePreventFocusChange;
-			this->ClientSize = System::Drawing::Size(1448, 687);
+			this->ClientSize = System::Drawing::Size(1300, 530);
+			this->Controls->Add(this->IncludeCheck);
 			this->Controls->Add(this->LoadSnptBtn);
 			this->Controls->Add(this->SaveBtn);
 			this->Controls->Add(this->JustLabel);
@@ -479,6 +494,7 @@ namespace Script_PS {
 			this->StartPosition = System::Windows::Forms::FormStartPosition::CenterParent;
 			this->Text = L"Snippet_Config";
 			this->FormClosing += gcnew System::Windows::Forms::FormClosingEventHandler(this, &Snippet_Config::Snippet_Config_FormClosing);
+			this->FormClosed += gcnew System::Windows::Forms::FormClosedEventHandler(this, &Snippet_Config::Snippet_Config_FormClosed);
 			this->Load += gcnew System::EventHandler(this, &Snippet_Config::Snippet_Config_Load);
 			(cli::safe_cast<System::ComponentModel::ISupportInitialize^>(this->richTextBox1))->EndInit();
 			(cli::safe_cast<System::ComponentModel::ISupportInitialize^>(this->richTextBox2))->EndInit();
@@ -488,11 +504,11 @@ namespace Script_PS {
 			this->PerformLayout();
 
 		}
-		void Load_File_Names (void)
+		void Load_File_Names(void)
 		{
-			for(int i = 0; i< this->Snpt_Replacer->Get_Snpt_Count(); i++)
+			for (int i = 0; i < this->Snpt_Replacer->Get_Snpt_Count(); i++)
 			{
-				if(this->Snpt_Replacer->Get_snippit(i)[2]->Equals(""))
+				if (this->Snpt_Replacer->Get_snippit(i)[2]->Equals(""))
 				{
 					continue;
 				}
@@ -504,7 +520,7 @@ namespace Script_PS {
 		}
 		void Add_File_ToCombo(System::String^ s)
 		{
-			if(this->comboBox1->Items->Contains(s))
+			if (this->comboBox1->Items->Contains(s))
 			{
 				return;
 			}
@@ -521,39 +537,133 @@ namespace Script_PS {
 		void Fill_Tree(void)
 		{
 			int index = this->Snpt_Replacer->Get_Snpt_Count();
-			this->Snpts = gcnew array<System::Windows::Forms::TreeNode^>(index);
-			for(int i=0;i<index;i++)
+			System::Collections::Generic::List<System::Windows::Forms::TreeNode^>^PolySpace_Red = gcnew System::Collections::Generic::List<System::Windows::Forms::TreeNode^>;
+			System::Collections::Generic::List<System::Windows::Forms::TreeNode^>^PolySpace_1 = gcnew System::Collections::Generic::List<System::Windows::Forms::TreeNode^>;
+			System::Collections::Generic::List<System::Windows::Forms::TreeNode^>^PolySpace_2 = gcnew System::Collections::Generic::List<System::Windows::Forms::TreeNode^>;
+			for (int i = 0; i < index; i++)
 			{
-				Snpts[i] = gcnew TreeNode("Snippit # " +(this->Snpt_Replacer->Get_snippit(i))[9]);
+				if ((this->Snpt_Replacer->Get_snippit(i))[3]->Equals("Bug_Report"))
+				{
+					PolySpace_Red->Add(gcnew TreeNode("Snippit # " + (this->Snpt_Replacer->Get_snippit(i))[9]));
+				}
+				else if ((this->Snpt_Replacer->Get_snippit(i))[3]->Equals("PolySpace_1"))
+				{
+					PolySpace_1->Add(gcnew TreeNode("Snippit # " + (this->Snpt_Replacer->Get_snippit(i))[9]));
+				}
+				else if ((this->Snpt_Replacer->Get_snippit(i))[3]->Equals("PolySpace_2"))
+				{
+					PolySpace_2->Add(gcnew TreeNode("Snippit # " + (this->Snpt_Replacer->Get_snippit(i))[9]));
+				}
+				else{}
 			}
-			Global = gcnew TreeNode("All Snippets", Snpts);
-			this->treeView1->Nodes->Add(Global);
+			array<System::Windows::Forms::TreeNode^>^ Red = PolySpace_Red->ToArray();
+			array<System::Windows::Forms::TreeNode^>^ PS1 = PolySpace_1->ToArray();
+			array<System::Windows::Forms::TreeNode^>^ PS2 = PolySpace_2->ToArray();
+			PS_1 = gcnew TreeNode("Polyspace_1", PS1);
+			PS_2 = gcnew TreeNode("Polyspace_2", PS2);
+			PS_Red = gcnew TreeNode("Polyspace_Red", Red);
+			if (PolySpace_Red->Count > 0)
+			{
+				this->treeView1->Nodes->Add(PS_Red);
+			}
+			if (PolySpace_1->Count > 0)
+			{
+				this->treeView1->Nodes->Add(PS_1);
+			}
+			if (PolySpace_2->Count > 0)
+			{
+				this->treeView1->Nodes->Add(PS_2);
+			}
 		}
 		void RefillTree(void)
 		{
 			int index = this->Snpt_Replacer->Get_Snpt_Count();
-			this->Snpts = gcnew array<System::Windows::Forms::TreeNode^>(index);
+			System::Collections::Generic::List<System::Windows::Forms::TreeNode^>^PolySpace_Red = gcnew System::Collections::Generic::List<System::Windows::Forms::TreeNode^>;
+			System::Collections::Generic::List<System::Windows::Forms::TreeNode^>^PolySpace_1 = gcnew System::Collections::Generic::List<System::Windows::Forms::TreeNode^>;
+			System::Collections::Generic::List<System::Windows::Forms::TreeNode^>^PolySpace_2 = gcnew System::Collections::Generic::List<System::Windows::Forms::TreeNode^>;
 			for (int i = 0; i<index; i++)
 			{
-				Snpts[i] = gcnew TreeNode("Snippit # " + (this->Snpt_Replacer->Get_snippit(i))[9]);
+				if ((this->Snpt_Replacer->Get_snippit(i))[3]->Equals("Bug_Report"))
+				{
+					PolySpace_Red->Add(gcnew TreeNode("Snippit # " + (this->Snpt_Replacer->Get_snippit(i))[9]));
+				}
+				else if ((this->Snpt_Replacer->Get_snippit(i))[3]->Equals("PolySpace_1"))
+				{
+					PolySpace_1->Add(gcnew TreeNode("Snippit # " + (this->Snpt_Replacer->Get_snippit(i))[9]));
+				}
+				else if ((this->Snpt_Replacer->Get_snippit(i))[3]->Equals("PolySpace_2"))
+				{
+					PolySpace_2->Add(gcnew TreeNode("Snippit # " + (this->Snpt_Replacer->Get_snippit(i))[9]));
+				}
+				else{}
 			}
-			Global->Nodes->Clear();
+			PS_Red->Nodes->Clear();
+			PS_1->Nodes->Clear();
+			PS_2->Nodes->Clear();
 			this->treeView1->Nodes->Clear();
-			Global = gcnew TreeNode("All Snippets", Snpts);
-			this->treeView1->Nodes->Add(Global);
+			array<System::Windows::Forms::TreeNode^>^ Red = PolySpace_Red->ToArray();
+			array<System::Windows::Forms::TreeNode^>^ PS1 = PolySpace_1->ToArray();
+			array<System::Windows::Forms::TreeNode^>^ PS2 = PolySpace_2->ToArray();
+			PS_1 = gcnew TreeNode("Polyspace_1", PS1);
+			PS_2 = gcnew TreeNode("Polyspace_2", PS2);
+			PS_Red = gcnew TreeNode("Polyspace_Red", Red);
+			if (PolySpace_Red->Count > 0)
+			{
+				this->treeView1->Nodes->Add(PS_Red);
+			}
+			if (PolySpace_1->Count > 0)
+			{
+				this->treeView1->Nodes->Add(PS_1);
+			}
+			if (PolySpace_2->Count > 0)
+			{
+				this->treeView1->Nodes->Add(PS_2);
+			}
 		}
 		void Refresh_Tree(void)
 		{
 			int index = this->Snpt_Replacer->Get_Snpt_Count();
-			this->Snpts = gcnew array<System::Windows::Forms::TreeNode^>(index);
+			System::Collections::Generic::List<System::Windows::Forms::TreeNode^>^PolySpace_Red = gcnew System::Collections::Generic::List<System::Windows::Forms::TreeNode^>;
+			System::Collections::Generic::List<System::Windows::Forms::TreeNode^>^PolySpace_1 = gcnew System::Collections::Generic::List<System::Windows::Forms::TreeNode^>;
+			System::Collections::Generic::List<System::Windows::Forms::TreeNode^>^PolySpace_2 = gcnew System::Collections::Generic::List<System::Windows::Forms::TreeNode^>;
 			for(int i=0;i<index;i++)
 			{
-				Snpts[i] = gcnew TreeNode("Snippit # " + (this->Snpt_Replacer->Get_snippit(i))[9]);
+				if ((this->Snpt_Replacer->Get_snippit(i))[3]->Equals("Bug_Report"))
+				{
+					PolySpace_Red->Add(gcnew TreeNode("Snippit # " + (this->Snpt_Replacer->Get_snippit(i))[9]));
+				}
+				else if ((this->Snpt_Replacer->Get_snippit(i))[3]->Equals("PolySpace_1"))
+				{
+					PolySpace_1->Add(gcnew TreeNode("Snippit # " + (this->Snpt_Replacer->Get_snippit(i))[9]));
+				}
+				else if ((this->Snpt_Replacer->Get_snippit(i))[3]->Equals("PolySpace_2"))
+				{
+					PolySpace_2->Add(gcnew TreeNode("Snippit # " + (this->Snpt_Replacer->Get_snippit(i))[9]));
+				}
+				else{}
 			}
-			Global = gcnew TreeNode("All Snippets", Snpts);
-			this->treeView1->BeginUpdate();
+			PS_Red->Nodes->Clear();
+			PS_1->Nodes->Clear();
+			PS_2->Nodes->Clear();
 			this->treeView1->Nodes->Clear();
-			this->treeView1->Nodes->Add(Global);
+			array<System::Windows::Forms::TreeNode^>^ Red = PolySpace_Red->ToArray();
+			array<System::Windows::Forms::TreeNode^>^ PS1 = PolySpace_1->ToArray();
+			array<System::Windows::Forms::TreeNode^>^ PS2 = PolySpace_2->ToArray();
+			PS_1 = gcnew TreeNode("Polyspace_1", PS1);
+			PS_2 = gcnew TreeNode("Polyspace_2", PS2);
+			PS_Red = gcnew TreeNode("Polyspace_Red", Red);
+			if (PolySpace_Red->Count > 0)
+			{
+				this->treeView1->Nodes->Add(PS_Red);
+			}
+			if (PolySpace_1->Count > 0)
+			{
+				this->treeView1->Nodes->Add(PS_1);
+			}
+			if (PolySpace_2->Count > 0)
+			{
+				this->treeView1->Nodes->Add(PS_2);
+			}
 			this->treeView1->EndUpdate();
 			this->treeView1->ExpandAll();
 		}
@@ -574,6 +684,10 @@ private: System::Void treeView1_AfterSelect(System::Object^  sender, System::Win
 			 System::String^ loc_Text = e->Node->Text;
 			 Match^ Num_match = this->pat_num->Match(loc_Text);
 			 System::String^ Number = Num_match->Groups[1]->Value;
+
+			 /*Release Include Check after any Activity after New*/
+			 this->IncludeCheck->Enabled = true;
+
 			 if(!(Number->Equals("")))
 			 {
 				 unsigned short Num = int::Parse(Number);
@@ -612,11 +726,26 @@ private: System::Void treeView1_AfterSelect(System::Object^  sender, System::Win
 				 this->JustificationBox->Text = Snpt[4];
 				 this->SWLabel->Text = "SW Version: "+Snpt[5];
 				 this->comboBox1->Text = Snpt[2];
+				 if (Snpt[11]->Equals("YES"))
+				 {
+					 this->IncludeCheck->Checked = true;
+				 }
+				 else
+				 {
+					 this->IncludeCheck->Checked = false;
+				 }
 			 }
 			 else
 			 {
 				 this->richTextBox1->Text = "";
 				 this->richTextBox2->Text = "";
+				 this->BugReportTxt->Text = "";
+				 this->SnippitTypeCombo->Text = "";
+				 this->TRAQBox->Text = "";
+				 this->JustificationBox->Text = "";
+				 this->SWLabel->Text = "SW Version: ";
+				 this->IsReplaceCheck->Checked = false;
+				 this->IsReusedCheck->Checked = false;
 				 this->comboBox1->Text = "";
 			 }
 			 this-> Enable_Add = false;
@@ -640,6 +769,8 @@ private: System::Void Refresh_Click(System::Object^  sender, System::EventArgs^ 
 				this->richTextBox2->Text = "";
 				this->Refresh_Tree();
 			}
+			/*Release Include Check after any Activity after New*/
+			this->IncludeCheck->Enabled = true;
 		 }
 private: System::Void New_snpt_Click(System::Object^  sender, System::EventArgs^  e) 
 		 {
@@ -657,11 +788,17 @@ private: System::Void New_snpt_Click(System::Object^  sender, System::EventArgs^
 			 this-> Enable_Add = true;
 			 this->toolStripStatusLabel1->Text = "Ready to Add Snippit";
 			 this->Add_button->BackColor = System::Drawing::Color::Green;
+			 this->IncludeCheck->Checked = true;
+			 this->IncludeCheck->Enabled = false;
 		 }
 private: System::Void Add_button_Click(System::Object^  sender, System::EventArgs^  e) 
 		 {
 			 System::String^ BugNum;
 			 System::String^ TRQ;
+
+			 /*Release Include Check after any Activity after New*/
+			 this->IncludeCheck->Enabled = true;
+
 			 if(this->richTextBox1->Text->Equals("") || this->richTextBox2->Text->Equals(""))
 			 {
 				 System::Windows::Forms::MessageBox::Show("Cannot Take Empty String as input","Error",System::Windows::Forms::MessageBoxButtons::OK, 
@@ -701,9 +838,12 @@ private: System::Void Add_button_Click(System::Object^  sender, System::EventArg
 					 System::Windows::Forms::MessageBox::Show("Please Create New Snippit First","Error",System::Windows::Forms::MessageBoxButtons::OK, System::Windows::Forms::MessageBoxIcon::Error);
 				 }
 			 }
+
 		 }
 private: System::Void Delete_button_Click(System::Object^  sender, System::EventArgs^  e) 
 		 {
+			/*Release Include Check after any Activity after New*/
+			this->IncludeCheck->Enabled = true;
 			try{if(this->treeView1->SelectedNode == nullptr){throw 1;}}catch(int x){return;}
 			System::String^ loc_Text = this->treeView1->SelectedNode->Text;
 			Match^ Num_match = this->pat_num->Match(loc_Text);
@@ -734,16 +874,29 @@ private: System::Void Delete_button_Click(System::Object^  sender, System::Event
 			}
 			this-> Enable_Add = false;
 			this->Add_button->BackColor = System::Drawing::Color::Gainsboro;
+
 		 }
 private: System::Void Edit_button_Click(System::Object^  sender, System::EventArgs^  e) 
 		 {
+			/*Release Include Check after any Activity after New*/
+			this->IncludeCheck->Enabled = true;
 			 try{if(this->treeView1->SelectedNode == nullptr){throw 1;}}catch(int x){return;}
 			 System::String^ loc_Text = this->treeView1->SelectedNode->Text;
 			 Match^ Num_match = this->pat_num->Match(loc_Text);
 			 System::String^ Number = Num_match->Groups[1]->Value;
+			 System::String^ Include;
+
+			 if (this->IncludeCheck->Checked)
+			 {
+				 Include = "YES";
+			 }
+			 else
+			 {
+				 Include = "NO";
+			 }
 
 			 array<System::String^>^ loc_data = gcnew array<System::String^>{this->richTextBox1->Text, this->richTextBox2->Text, this->SnippitTypeCombo->Text, this->comboBox1->Text, Number, BugReportTxt->Text, 
-				 JustificationBox->Text, TRAQBox->Text};
+				 JustificationBox->Text, TRAQBox->Text, Include};
 
 			 if(!(Number->Equals("")))
 			 {
@@ -778,6 +931,8 @@ private: System::Void Edit_button_Click(System::Object^  sender, System::EventAr
 		{
 			this->Snpt_Replacer->Save_file();
 			IsSaveRequired = false;
+			/*Release Include Check after any Activity after New*/
+			this->IncludeCheck->Enabled = true;
 		}
 		private: bool CheckSnptValidity()
 		{
@@ -853,6 +1008,8 @@ private: System::Void Snippet_Config_FormClosing(System::Object^  sender, System
 }
 	private: System::Void LoadSnptBtn_Click(System::Object^  sender, System::EventArgs^  e) 
 	{
+		/*Release Include Check after any Activity after New*/
+		this->IncludeCheck->Enabled = true;
 		this->XML_FileDialog->ShowDialog();
 		if (this->XML_FileDialog->FileName->EndsWith(".xml"))
 		{
@@ -873,6 +1030,10 @@ private: System::Void Snippet_Config_FormClosing(System::Object^  sender, System
 			System::Windows::Forms::MessageBox::Show("Please Choose a Snippets XML file", "Error", System::Windows::Forms::MessageBoxButtons::OK, System::Windows::Forms::MessageBoxIcon::Error);
 			return;
 		}
+	}
+	private: System::Void Snippet_Config_FormClosed(System::Object^  sender, System::Windows::Forms::FormClosedEventArgs^  e) 
+	{
+		this->~Snippet_Config();
 	}
 };
 }

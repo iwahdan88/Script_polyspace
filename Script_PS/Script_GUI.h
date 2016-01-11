@@ -360,8 +360,8 @@ private: System::Void button5_Click(System::Object^  sender, System::EventArgs^ 
 				 System::Windows::Forms::MessageBox::Show("Please Enter Valid SW Version -> EX: 1.1", "Error", System::Windows::Forms::MessageBoxButtons::OK, System::Windows::Forms::MessageBoxIcon::Error);
 				 return;
 			 }
-			 if(click_count == 0 || this->Script_Path_Changed)
-			 {
+			 //if(click_count == 0 || this->Script_Path_Changed)
+			 //{
 				if (System::IO::File::Exists(xmlPath))
 				{
 					 try
@@ -393,10 +393,9 @@ private: System::Void button5_Click(System::Object^  sender, System::EventArgs^ 
 						return;
 					}
 				}
-			 }
+			 //}
 			 try{ Snippet_Form->ShowDialog(); }
 			 catch (Exception^ e){ System::Windows::Forms::MessageBox::Show(e->Message); return; }
-			 Snippet_Form->TopMost = true;
 			 click_count++;
 			 this->Script_Path_Changed = false;
 		 }

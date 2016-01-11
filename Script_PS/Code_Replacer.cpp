@@ -27,6 +27,7 @@ Replacer::Replacer(System::String^ XMLPath)
 		SnippetDataSet->Tables[0]->Columns->Add(gcnew System::Data::DataColumn("IsReused"));
 		SnippetDataSet->Tables[0]->Columns->Add(gcnew System::Data::DataColumn("IsReplaced"));
 		SnippetDataSet->Tables[0]->Columns->Add(gcnew System::Data::DataColumn("BugTRAQ"));
+		SnippetDataSet->Tables[0]->Columns->Add(gcnew System::Data::DataColumn("Include"));
 
 		this->XmlFile = gcnew System::Xml::XmlDocument();
 	}
@@ -37,6 +38,7 @@ bool Replacer::Load_XmlFile(System::String^ File_Path, double CurrVer)
 	XmlElement^ root = XmlFile->DocumentElement;
 	System::String^ IsSnippetReuesed;
 	double LoadedVer = 0;
+	bool Include;
 
 	try
 	{
@@ -74,12 +76,21 @@ bool Replacer::Load_XmlFile(System::String^ File_Path, double CurrVer)
 				(elemList->Item(i)->ChildNodes->Item(9)->InnerText),
 				(elemList->Item(i)->ChildNodes->Item(10)->InnerText)});
 
+				if ((elemList->Item(i)->ChildNodes->Item(11)->InnerText)->Equals("YES"))
+				{
+					Include = true;
+				}
+				else
+				{
+					Include = false;
+				}
+
 			Snippits->Add(gcnew Snippit(SnippetDataSet->Tables[0]->Rows[i]->ItemArray[0]->ToString(), this->SnippetDataSet->Tables[0]->Rows[i]->ItemArray[1]->ToString(),
 				SnippetDataSet->Tables[0]->Rows[i]->ItemArray[2]->ToString(), SnippetDataSet->Tables[0]->Rows[i]->ItemArray[3]->ToString(),
 				SnippetDataSet->Tables[0]->Rows[i]->ItemArray[4]->ToString(), SnippetDataSet->Tables[0]->Rows[i]->ItemArray[5]->ToString(),
 				SnippetDataSet->Tables[0]->Rows[i]->ItemArray[6]->ToString(), SnippetDataSet->Tables[0]->Rows[i]->ItemArray[7]->ToString(),
 				SnippetDataSet->Tables[0]->Rows[i]->ItemArray[8]->ToString(), SnippetDataSet->Tables[0]->Rows[i]->ItemArray[9]->ToString(),
-				SnippetDataSet->Tables[0]->Rows[i]->ItemArray[10]->ToString()));
+				SnippetDataSet->Tables[0]->Rows[i]->ItemArray[10]->ToString(), Include));
 
 		}
 
@@ -96,6 +107,7 @@ bool Replacer::Load_XmlFile(System::String^ File_Path)
 	this->XmlFile->Load(File_Path);
 	XmlNodeList^ elemList;
 	XmlElement^ root = XmlFile->DocumentElement;
+	bool Include;
 
 	try
 	{
@@ -114,14 +126,24 @@ bool Replacer::Load_XmlFile(System::String^ File_Path)
 				(elemList->Item(i)->ChildNodes->Item(7)->InnerText),
 				(elemList->Item(i)->ChildNodes->Item(8)->InnerText),
 				(elemList->Item(i)->ChildNodes->Item(9)->InnerText),
-				(elemList->Item(i)->ChildNodes->Item(10)->InnerText)});
+				(elemList->Item(i)->ChildNodes->Item(10)->InnerText),
+				(elemList->Item(i)->ChildNodes->Item(11)->InnerText)});
+
+			if ((elemList->Item(i)->ChildNodes->Item(11)->InnerText)->Equals("YES"))
+			{
+				Include = true;
+			}
+			else
+			{
+				Include = false;
+			}
 
 			Snippits->Add(gcnew Snippit(SnippetDataSet->Tables[0]->Rows[i]->ItemArray[0]->ToString(), this->SnippetDataSet->Tables[0]->Rows[i]->ItemArray[1]->ToString(),
 				SnippetDataSet->Tables[0]->Rows[i]->ItemArray[2]->ToString(), SnippetDataSet->Tables[0]->Rows[i]->ItemArray[3]->ToString(),
 				SnippetDataSet->Tables[0]->Rows[i]->ItemArray[4]->ToString(), SnippetDataSet->Tables[0]->Rows[i]->ItemArray[5]->ToString(),
 				SnippetDataSet->Tables[0]->Rows[i]->ItemArray[6]->ToString(), SnippetDataSet->Tables[0]->Rows[i]->ItemArray[7]->ToString(),
 				SnippetDataSet->Tables[0]->Rows[i]->ItemArray[8]->ToString(), SnippetDataSet->Tables[0]->Rows[i]->ItemArray[9]->ToString(),
-				SnippetDataSet->Tables[0]->Rows[i]->ItemArray[10]->ToString()));
+				SnippetDataSet->Tables[0]->Rows[i]->ItemArray[10]->ToString(), Include));
 
 		}
 
@@ -138,7 +160,7 @@ void Replacer::Create_Snippit(System::String^ snpt_original, System::String^ snp
 							  System::String^ IsReuese, System::String^ IsReplace, System::String^ TRAQ)
 	{
 		Snippit_Count++;
-		Snippits->Add(gcnew Snippit(snpt_original, snpt_replacment, Type, FileName, this->MaximumID.ToString() , Snpt_BugRprt, Justification, Version, IsReuese, IsReplace, TRAQ));
+		Snippits->Add(gcnew Snippit(snpt_original, snpt_replacment, Type, FileName, this->MaximumID.ToString(), Snpt_BugRprt, Justification, Version, IsReuese, IsReplace, TRAQ, true));
 	}
 	void Replacer::Refresh_File()
 	{
@@ -148,6 +170,7 @@ void Replacer::Create_Snippit(System::String^ snpt_original, System::String^ snp
 		System::String^ BugNum;
 		/*Clear DataSet*/
 		SnippetDataSet->Clear();
+		System::String^ Include;
 
 		System::String^ File = "";
 		for(int i=0;i < Snippit_Count;i++)
@@ -183,9 +206,17 @@ void Replacer::Create_Snippit(System::String^ snpt_original, System::String^ snp
 				snptype = "Unknown Type";
 				break;
 			}
+			if (Snippits[i]->GetInclude())
+			{
+				Include = "YES";
+			}
+			else
+			{
+				Include = "NO";
+			}
 			/*Fill to DataSet*/
 			SnippetDataSet->Tables[0]->Rows->Add(Snippits[i]->Get_Original(), Snippits[i]->Get_Replacment(), snptype, Snippits[i]->Get_File_Name(),
-				Snippits[i]->GetID(), BugNum, Snippits[i]->Get_Snippet_Justification(), Snippits[i]->GetSW_Version(), IsReues, IsReplaced, Snippits[i]->GetBugTRAQ());
+				Snippits[i]->GetID(), BugNum, Snippits[i]->Get_Snippet_Justification(), Snippits[i]->GetSW_Version(), IsReues, IsReplaced, Snippits[i]->GetBugTRAQ(), Include);
 			
 		}
 		// Create the FileStream to write with.
@@ -222,6 +253,7 @@ void Replacer::Create_Snippit(System::String^ snpt_original, System::String^ snp
 		System::String^ IsReues = "NO";
 		System::String^ IsReplaced = "NO";
 		int i;
+		System::String^ Include;
 		//Get Index of Snippet in List
 		for (i = 0; i < Get_Snpt_Count(); i++)
 		{
@@ -241,6 +273,14 @@ void Replacer::Create_Snippit(System::String^ snpt_original, System::String^ snp
 			{
 				IsReues = "YES";
 			}
+			if (Snippits[i]->GetInclude())
+			{
+				Include = "YES";
+			}
+			else
+			{
+				Include = "NO";
+			}
 			switch (Snippits[i]->GetSnippetType())
 			{
 			case SnippitType::PolySpace_1:
@@ -258,7 +298,7 @@ void Replacer::Create_Snippit(System::String^ snpt_original, System::String^ snp
 			}
 			array<System::String^>^Snippit = { Snippits[i]->Get_Original(), Snippits[i]->Get_Replacment(), Snippits[i]->Get_File_Name(), snptype,
 				Snippits[i]->Get_Snippet_Justification(), Snippits[i]->GetSW_Version(), IsReues, IsReplaced, Snippits[i]->GetBugTRAQ(), Snippits[i]->GetID(),
-				BugNum };
+				BugNum, Include };
 			return Snippit;
 		}
 		return nullptr;
@@ -268,6 +308,7 @@ void Replacer::Create_Snippit(System::String^ snpt_original, System::String^ snp
 		System::String^ snptype;
 		System::String^ IsReues = "NO";
 		System::String^ IsReplaced = "NO";
+		System::String^ Include ;
 
 		System::String^ BugNum = Snippits[Snpt_number]->GetBugReportNum().ToString();
 		if (Snippits[Snpt_number]->IsSnippetReplaced())
@@ -277,6 +318,14 @@ void Replacer::Create_Snippit(System::String^ snpt_original, System::String^ snp
 		if (Snippits[Snpt_number]->IsSnippetReused())
 		{
 			IsReues = "YES";
+		}
+		if (Snippits[Snpt_number]->GetInclude())
+		{
+			Include = "YES";
+		}
+		else
+		{
+			Include = "NO";
 		}
 		switch (Snippits[Snpt_number]->GetSnippetType())
 		{
@@ -295,13 +344,14 @@ void Replacer::Create_Snippit(System::String^ snpt_original, System::String^ snp
 		}
 		array<System::String^>^Snippit = { Snippits[Snpt_number]->Get_Original(), Snippits[Snpt_number]->Get_Replacment(), Snippits[Snpt_number]->Get_File_Name(), snptype,
 			Snippits[Snpt_number]->Get_Snippet_Justification(), Snippits[Snpt_number]->GetSW_Version(), IsReues, IsReplaced, Snippits[Snpt_number]->GetBugTRAQ(), Snippits[Snpt_number]->GetID(),
-			BugNum };
+			BugNum, Include };
 		return Snippit;
 	}
 	void Replacer::Edit_Snippit(array<System::String^>^ snpt)
 	{
 		int index = 0;
 		SnippitType Type;
+		bool Include;
 		if (snpt[2]->Equals("PolySpace_1"))
 		{
 			Type = SnippitType::PolySpace_1;
@@ -318,6 +368,14 @@ void Replacer::Create_Snippit(System::String^ snpt_original, System::String^ snp
 		{
 			Type = SnippitType::UnknownType;
 		}
+		if (snpt[8]->Equals("YES"))
+		{
+			Include = true;
+		}
+		else
+		{
+			Include = false;
+		}
 		/*Find Index of Snippet*/
 		for (index = 0; index < Snippit_Count; index++)
 		{
@@ -333,6 +391,7 @@ void Replacer::Create_Snippit(System::String^ snpt_original, System::String^ snp
 					Snippits[index]->Set_BugTRAQ(snpt[7]);
 				}
 				Snippits[index]->Set_Snippet_Justification(snpt[6]);
+				Snippits[index]->SetInclude(Include);
 				break;
 			}
 		}

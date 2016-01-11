@@ -17,10 +17,11 @@ Snippit::Snippit(void)
 				Snippit::SnptType = UnknownType;
 				Snippit::BugReportNum = 0;
 				Snippit::bypass = false;
+				Snippit::IncludeSnpt = true;
 			}
 Snippit::Snippit(System::String^ Original, System::String^ Replacment, System::String^ Type, System::String^ File, System::String^ SnippitID, 
 				 System::String^ BugReportNum, System::String^ WorkAroundJustification, System::String^ SW_Version, 
-				 System::String^ IsReused, System::String^ IsReplaced, System::String^ BugTRAQ)
+				 System::String^ IsReused, System::String^ IsReplaced, System::String^ BugTRAQ, bool Inc)
 			{
 				Snippit::Original = Original;
 				Snippit::Replacment = Replacment;
@@ -70,6 +71,7 @@ Snippit::Snippit(System::String^ Original, System::String^ Replacment, System::S
 					Snippit::BugReportNum = 0;
 				}
 				Snippit::bypass = false;
+				Snippit::IncludeSnpt = Inc;
 			}
 			void Snippit::Set_Original(System::String^ s)
 			{
@@ -164,6 +166,10 @@ Snippit::Snippit(System::String^ Original, System::String^ Replacment, System::S
 			{
 				BugReportNum = Num;
 			}
+			void Snippit::SetInclude(bool Inc)
+			{
+				this->IncludeSnpt = Inc;
+			}
 			System::String^ Snippit::Get_Original(void)
 			{
 				return Snippit::Original;
@@ -215,4 +221,8 @@ Snippit::Snippit(System::String^ Original, System::String^ Replacment, System::S
 			bool Snippit::Is_ByPassed (void)
 			{
 				return Snippit::bypass;
+			}
+			bool Snippit::GetInclude(void)
+			{
+				return IncludeSnpt;
 			}

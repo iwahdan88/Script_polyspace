@@ -18,6 +18,7 @@ namespace Main_package
 			 System::String^ SW_Version;
 			 bool IsReused;
 			 bool IsReplaced;
+			 bool IncludeSnpt;
 			 System::String^ BugTRAQ;
 			 System::String^ ID;
 			 SnippitType SnptType;
@@ -34,6 +35,7 @@ namespace Main_package
 			void Snippit::Set_ID(System::String^ id);
 			void Snippit::SetSnippetType(SnippitType Type);
 			void Snippit::SetBugReportNum(int Num);
+			void Snippit::SetInclude(bool Inc);
 			System::String^ GetSW_Version(void);
 			bool IsSnippetReused(void);
 			bool IsSnippetReplaced(void);
@@ -45,11 +47,12 @@ namespace Main_package
 			System::String^ Get_Replacment(void);
 			System::String^ Get_File_Name(void);
 			System::String^ Get_Snippet_Justification(void);
+			bool Snippit::GetInclude(void);
 
 			Snippit(void);
 			Snippit::Snippit(System::String^ Original, System::String^ Replacment, System::String^ Type, System::String^ File, System::String^ SnippitID,
 				System::String^ BugReportNum, System::String^ WorkAroundJustification, System::String^ SW_Version,
-				System::String^ IsReused, System::String^ IsReplaced, System::String^ BugTRAQ);
+				System::String^ IsReused, System::String^ IsReplaced, System::String^ BugTRAQ, bool Inc);
 			void ByPass(bool bypass);
 			bool Is_ByPassed (void);
 	};
