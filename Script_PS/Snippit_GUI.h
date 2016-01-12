@@ -28,7 +28,7 @@ namespace Script_PS {
 			SnippitTypeCombo->Items->Add("PolySpace_1");
 			SnippitTypeCombo->Items->Add("PolySpace_2");
 			SnippitTypeCombo->Items->Add("Bug_Report");
-			if (!this->Snpt_Replacer->Load_XmlFile(XmlPath))
+			if (System::IO::File::Exists(XmlPath) && (!this->Snpt_Replacer->Load_XmlFile(XmlPath)))
 			{
 				throw (gcnew System::Exception("Failed to load Xml"));
 			}
