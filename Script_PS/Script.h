@@ -5,7 +5,7 @@
 using namespace System::Text::RegularExpressions;
 using namespace System::IO;
 
-// namesapce
+// namesapce declare
 namespace Main_package
 {
 	public ref class Script
